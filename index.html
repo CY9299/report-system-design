@@ -1,86 +1,568 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>報告系統雛型（範本預設頁）</title>
-  <link rel="stylesheet" href="tokens.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: var(--font-family);
-      font-size: var(--font-size-md);
-      color: var(--color-text);
-      background: var(--color-surface);
-      line-height: 1.6;
-    }
-    main {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: var(--space-6) var(--space-4);
-    }
-    h1 { font-size: var(--font-size-xl); margin: 0 0 var(--space-2); }
-    h2 { font-size: var(--font-size-lg); margin: var(--space-6) 0 var(--space-2); }
-    p { margin: 0 0 var(--space-3); max-width: 70ch; }
-    .notice {
-      background: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-left: 4px solid var(--color-primary);
-      border-radius: var(--radius);
-      padding: var(--space-4);
-    }
-    .table-wrap { overflow-x: auto; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius); }
-    table { border-collapse: collapse; width: 100%; font-size: var(--font-size-sm); }
-    th, td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-border); white-space: nowrap; }
-    th { color: var(--color-text-muted); font-weight: 600; }
-    tr:last-child td { border-bottom: none; }
-    .status { color: var(--color-text-muted); }
-    code { font-size: 0.95em; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>影像報告系統 雛型</title>
+<style>
+:root{
+  --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f8f9fb; --border:#d7dbe2; --border-strong:#b9c0cb;
+  --text:#1c2330; --muted:#5a6474; --primary:#1d5bbf; --primary-hover:#174a9c; --primary-soft:#e6eefb;
+  --pending-bg:#fff5e1; --pending-ink:#7d5200; --pending-bd:#eec36a;
+  --done-bg:#e7f0fd; --done-ink:#1b4c97; --done-bd:#98b9ea;
+  --cert-bg:#e6f5eb; --cert-ink:#1a6636; --cert-bd:#8ccaa2;
+  --dc-ink:#a1251a; --dc-bg:#fdebe9; --dc-bd:#e9a39b;
+  --img-bg:#2f343c; --img-ink:#c8cdd5;
+  --radius:8px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:14px/1.5 "PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.muted{color:var(--muted)}
+[hidden]{display:none !important}
+
+/* header */
+.app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.brand-mark{width:14px;height:14px;border-radius:3px;background:var(--primary)}
+.role-tag{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary)}
+main{max-width:1480px;margin:0 auto;padding:16px 20px 40px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border-strong);
+  background:var(--surface);border-radius:6px;cursor:pointer;white-space:nowrap}
+.btn:hover:not(:disabled){background:var(--surface-2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+.btn-primary:hover:not(:disabled){background:var(--primary-hover)}
+.btn-cert{border-color:var(--cert-ink);color:var(--cert-ink);font-weight:600}
+.btn-ghost{border-color:transparent;background:transparent}
+kbd{font:11px/1 ui-monospace,monospace;padding:2px 5px;border-radius:4px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35)}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
+.badge.st-pending{background:var(--pending-bg);color:var(--pending-ink);border-color:var(--pending-bd)}
+.badge.st-done{background:var(--done-bg);color:var(--done-ink);border-color:var(--done-bd)}
+.badge.st-cert{background:var(--cert-bg);color:var(--cert-ink);border-color:var(--cert-bd)}
+.badge.dc{background:var(--dc-bg);color:var(--dc-ink);border-color:var(--dc-bd)}
+.badge.noimg{background:#eef0f3;color:var(--muted);border-color:var(--border)}
+
+/* summary */
+.summary{display:flex;align-items:stretch;gap:16px;flex-wrap:wrap;background:var(--surface);
+  border:1px solid var(--border);border-left:6px solid var(--pending-bd);border-radius:var(--radius);padding:14px 18px;margin-bottom:12px}
+.summary-total{display:flex;flex-direction:column;justify-content:center;min-width:170px;padding-right:18px;border-right:1px solid var(--border)}
+.summary-label{margin:0;font-size:14px;font-weight:600;color:var(--muted)}
+.summary-num{font-size:44px;font-weight:800;line-height:1.1;color:var(--pending-ink)}
+.summary-unit{margin-left:4px;font-size:16px;color:var(--muted)}
+.summary-cats{display:flex;flex-wrap:wrap;gap:10px;align-items:center;flex:1}
+.cat-chip{display:flex;flex-direction:column;align-items:flex-start;min-width:118px;padding:8px 12px;
+  border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);cursor:pointer;text-align:left}
+.cat-chip:hover{border-color:var(--border-strong)}
+.cat-chip .n{font-size:24px;font-weight:800;line-height:1.2}
+.cat-chip .t{font-size:13px;color:var(--muted)}
+.cat-chip.has .n{color:var(--pending-ink)}
+.cat-chip.zero .n{color:#a0a7b2}
+.cat-chip[aria-pressed="true"]{border:2px solid var(--primary);background:var(--primary-soft);padding:7px 11px}
+
+/* filters */
+.filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:10px}
+.f{display:flex;flex-direction:column;gap:3px}
+.f label{font-size:12px;font-weight:600;color:var(--muted)}
+.f input,.f select{height:34px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;background:#fff}
+.f-wide{grid-column:span 2}
+.f-actions{justify-content:flex-end}
+.list-meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:4px 2px 8px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+
+/* table */
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+table.worklist{width:100%;border-collapse:collapse;min-width:1080px}
+.worklist th{position:sticky;top:0;background:var(--surface-2);border-bottom:1px solid var(--border);text-align:left;padding:0;font-size:13px}
+.worklist th button{width:100%;display:flex;align-items:center;gap:4px;padding:9px 10px;border:0;background:transparent;font-weight:700;cursor:pointer;text-align:left}
+.worklist th button:hover{background:#eef1f5}
+.worklist th .arrow{color:var(--muted);font-size:11px;min-width:10px}
+.worklist td{padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;vertical-align:middle}
+.worklist tr.is-open{cursor:pointer}
+.worklist tr.st-pending td{background:var(--pending-bg)}
+.worklist tr.st-done td{background:var(--done-bg)}
+.worklist tr.st-cert td{background:var(--cert-bg)}
+.worklist tr.is-open:hover td{filter:brightness(.97)}
+.worklist tr.is-dc td:first-child{box-shadow:inset 4px 0 0 var(--dc-ink)}
+.worklist tr.is-locked td{background:#f1f2f4;color:var(--muted)}
+.worklist tr.is-locked{cursor:not-allowed}
+.worklist tr:focus-visible td{outline:none;box-shadow:inset 0 0 0 2px var(--primary)}
+.id-cell{display:flex;gap:6px;align-items:center;font-weight:600}
+.unassigned{color:var(--muted);font-style:italic}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+
+/* report view */
+.rp-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.rp-title{margin:0;font-size:18px}
+.rp-progress{margin-left:auto;color:var(--muted)}
+.rp-progress strong{color:var(--pending-ink);font-size:16px}
+.patient{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:10px}
+.patient dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 16px;margin:0}
+.patient dt{font-size:12px;color:var(--muted)}
+.patient dd{margin:0;font-weight:600}
+.neighbors{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:8px;margin-bottom:10px}
+.nb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 12px;border:1px solid var(--border);
+  border-radius:var(--radius);background:var(--surface);text-align:left;min-width:0}
+button.nb{cursor:pointer}
+button.nb:hover:not(:disabled){border-color:var(--border-strong);background:var(--surface-2)}
+button.nb:disabled{opacity:.55;cursor:default}
+.nb-cur{border:2px solid var(--primary);background:var(--primary-soft)}
+.nb-dir{font-size:12px;color:var(--muted);font-weight:600}
+.nb-line{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.nb-id{font-weight:700}
+.nb-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp-main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(380px,1fr);gap:12px;align-items:start}
+.viewer{position:sticky;top:64px}
+.viewer-box{height:calc(100vh - 300px);min-height:420px;background:var(--img-bg);border-radius:var(--radius);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--img-ink);text-align:center;padding:16px}
+.viewer-label{font-size:22px;font-weight:700;color:#e4e7ec}
+.viewer-note{font-size:12px;opacity:.75}
+.report{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column}
+.report-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.report-head h2{margin:0;font-size:16px}
+.report-body{padding:12px 16px;display:flex;flex-direction:column;gap:14px}
+.notice{padding:8px 12px;border-radius:6px;font-size:13px;border:1px solid}
+.notice.dc{background:var(--dc-bg);color:var(--dc-ink);border-color:var(--dc-bd)}
+.notice.lock{background:var(--cert-bg);color:var(--cert-ink);border-color:var(--cert-bd)}
+.his{border:1px dashed var(--border-strong);border-radius:6px;padding:8px 12px;background:var(--surface-2);font-size:13px}
+.his strong{display:block;margin-bottom:2px}
+.field label{display:block;font-weight:700;margin-bottom:4px}
+.phrases{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.chip{padding:3px 10px;border:1px solid var(--border-strong);border-radius:999px;background:#fff;font-size:12.5px;cursor:pointer}
+.chip:hover:not(:disabled){background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.chip:disabled{opacity:.45;cursor:not-allowed}
+.no-phrase{font-size:12px;color:var(--muted);margin:0 0 6px}
+.field textarea{width:100%;min-height:88px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;resize:vertical;
+  font-family:ui-monospace,"SF Mono",Consolas,"Microsoft JhengHei",monospace;font-size:13.5px}
+.field textarea[readonly]{background:var(--surface-2)}
+.actions{position:sticky;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 16px;border-top:1px solid var(--border);background:var(--surface);border-radius:0 0 var(--radius) var(--radius)}
+.actions .grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dirty{font-size:12px;color:var(--pending-ink);font-weight:600}
+
+/* toast & overlay */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;
+  background:#1c2330;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.2);transition:.2s;z-index:30;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.warn{background:var(--dc-ink)}
+.overlay{position:fixed;inset:0;background:rgba(20,25,35,.45);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px}
+.dialog{background:var(--surface);border-radius:12px;padding:24px 28px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.dialog h2{margin:0 0 8px;font-size:18px}
+.dialog p{margin:0 0 18px;color:var(--muted)}
+
+@media (max-width:1000px){
+  .rp-main{grid-template-columns:1fr}
+  .viewer{position:static}
+  .viewer-box{height:300px;min-height:0}
+  .neighbors{grid-template-columns:1fr}
+  .summary-total{border-right:0;padding-right:0}
+  .f-wide{grid-column:auto}
+}
+</style>
 </head>
 <body>
-  <main>
-    <h1>報告系統雛型</h1>
-    <div class="notice">
-      <p>看到這個頁面，代表 GitHub Pages 已經發布成功。</p>
-      <p>完成雛型後，把你的雛型檔案命名為 <code>index.html</code> 上傳，取代這個頁面。</p>
+<header class="app-header">
+  <div class="brand"><span class="brand-mark" aria-hidden="true"></span>影像報告系統<span class="role-tag">醫師端</span></div>
+  <div>登入：<strong>醫師甲</strong></div>
+</header>
+
+<main>
+  <!-- 工作清單 -->
+  <section id="list-view" aria-label="醫師工作清單">
+    <section class="summary" aria-labelledby="summary-title">
+      <div class="summary-total">
+        <h2 id="summary-title" class="summary-label"></h2>
+        <div><span id="summary-num" class="summary-num">0</span><span class="summary-unit">份</span></div>
+      </div>
+      <div id="summary-cats" class="summary-cats" role="group" aria-label="依檢查類別篩選"></div>
+    </section>
+
+    <form id="filters" class="filters" onsubmit="return false" aria-label="搜尋條件">
+      <div class="f"><label for="f-from">檢查日期（起）</label><input type="date" id="f-from"></div>
+      <div class="f"><label for="f-to">檢查日期（迄）</label><input type="date" id="f-to"></div>
+      <div class="f"><label for="f-status">報告狀態</label><select id="f-status"></select></div>
+      <div class="f"><label for="f-cat">檢查類別</label><select id="f-cat"></select></div>
+      <div class="f"><label for="f-unit">開單單位</label><select id="f-unit"></select></div>
+      <div class="f"><label for="f-orderDr">開單醫師</label><select id="f-orderDr"></select></div>
+      <div class="f"><label for="f-rptDr">報告醫師</label><select id="f-rptDr"></select></div>
+      <div class="f f-wide"><label for="f-kw">單號／身分證字號</label><input type="search" id="f-kw" placeholder="輸入單號或身分證字號"></div>
+      <div class="f f-actions"><button type="button" id="f-reset" class="btn">重設條件</button></div>
+    </form>
+
+    <div class="list-meta">
+      <span id="list-count" class="muted"></span>
+      <span class="legend" aria-label="圖例">
+        <span class="badge st-pending">○ 未完成</span>
+        <span class="badge st-done">◐ 已完成</span>
+        <span class="badge st-cert">✓ 已認證</span>
+        <span class="badge dc">醫令已DC</span>
+        <span class="badge noimg">未照影像</span>
+      </span>
     </div>
 
-    <h2>模擬資料檢查</h2>
-    <p class="status" id="status">正在讀取 <code>data/exams.json</code>…</p>
-    <div class="table-wrap" hidden id="wrap">
-      <table>
-        <thead>
-          <tr><th>單號</th><th>檢查日期時間</th><th>檢查類別</th><th>醫令狀態</th><th>影像</th><th>報告狀態</th><th>報告醫師</th></tr>
-        </thead>
-        <tbody id="rows"></tbody>
+    <div class="table-wrap">
+      <table class="worklist">
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
       </table>
     </div>
-  </main>
-  <script>
-    fetch('data/exams.json')
-      .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
-      .then(function (exams) {
-        var rows = document.getElementById('rows');
-        exams.forEach(function (e) {
-          var tr = document.createElement('tr');
-          [e.exam_no, e.exam_at, e.category, e.order_status, e.image_taken ? '已照' : '未照', e.report_status, e.report_doctor || '未指派']
-            .forEach(function (v) {
-              var td = document.createElement('td');
-              td.textContent = v;
-              tr.appendChild(td);
-            });
-          rows.appendChild(tr);
-        });
-        document.getElementById('status').textContent = '已讀取 ' + exams.length + ' 筆模擬檢查資料。';
-        document.getElementById('wrap').hidden = false;
-      })
-      .catch(function (err) {
-        document.getElementById('status').textContent = '無法讀取模擬資料（' + err.message + '）。請確認 data 資料夾已上傳。直接用瀏覽器開啟本機檔案時也會出現這個訊息，發布到 GitHub Pages 後即可正常讀取。';
-      });
-  </script>
+  </section>
+
+  <!-- 打報告畫面 -->
+  <section id="report-view" aria-label="打報告畫面" hidden></section>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="done" class="overlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="done-title">
+    <h2 id="done-title">未完成報告已全部完成</h2>
+    <p>目前清單中沒有其他未完成的報告。</p>
+    <button type="button" class="btn btn-primary" id="done-back">返回工作清單</button>
+  </div>
+</div>
+
+<script>
+/* ===== 模擬資料（案例文件提供，皆為虛構測試值） ===== */
+const EXAMS = [
+  {id:'R0001',dt:'2026-11-02 08:40',cat:'健檢胸部X光',name:'胸部X光數位攝影',unit:'健檢中心',orderDr:'醫師丁',pt:'測試一號',sex:'男',age:45,pid:'TEST000001',order:'正常',img:'已照',status:'未完成',rptDr:'醫師甲'},
+  {id:'R0002',dt:'2026-11-02 09:05',cat:'健檢乳攝',name:'2D+3D乳房攝影',unit:'健檢中心',orderDr:'醫師丁',pt:'測試二號',sex:'女',age:52,pid:'TEST000002',order:'正常',img:'已照',status:'未完成',rptDr:'醫師甲'},
+  {id:'R0003',dt:'2026-11-02 09:30',cat:'門診放射',name:'胸部X光（正面）',unit:'肝膽腸胃科',orderDr:'醫師戊',pt:'測試三號',sex:'男',age:63,pid:'TEST000003',order:'正常',img:'已照',status:'已完成',rptDr:'醫師甲',
+    report:{Finding:'No active lung lesion.',Impression:'No significant abnormality.'}},
+  {id:'R0004',dt:'2026-11-02 10:10',cat:'門診放射',name:'腹部X光',unit:'肝膽腸胃科',orderDr:'醫師戊',pt:'測試四號',sex:'女',age:58,pid:'TEST000004',order:'已DC',img:'已照',status:'未完成',rptDr:'醫師甲'},
+  {id:'R0005',dt:'2026-11-02 10:45',cat:'健檢胸部X光',name:'胸部X光數位攝影',unit:'健檢中心',orderDr:'醫師丁',pt:'測試五號',sex:'女',age:38,pid:'TEST000005',order:'正常',img:'已照',status:'已認證',rptDr:'醫師丙',
+    report:{Lung:'No active lung lesion.',Others:'Normal heart size.',Suggestion:'Follow-up as clinically indicated.'}},
+  {id:'R0006',dt:'2026-11-02 11:20',cat:'心臟超音波',name:'心臟超音波',unit:'心臟內科',orderDr:'醫師己',pt:'測試六號',sex:'男',age:71,pid:'TEST000006',order:'正常',img:'已照',status:'未完成',rptDr:'未指派'},
+  {id:'R0007',dt:'2026-11-03 08:50',cat:'頸動脈超音波',name:'頸動脈超音波',unit:'神經內科',orderDr:'醫師庚',pt:'測試七號',sex:'女',age:66,pid:'TEST000007',order:'正常',img:'已照',status:'未完成',rptDr:'醫師丙'},
+  {id:'R0008',dt:'2026-11-03 09:15',cat:'健檢乳攝',name:'2D+3D乳房攝影',unit:'健檢中心',orderDr:'醫師丁',pt:'測試八號',sex:'女',age:47,pid:'TEST000008',order:'已DC',img:'未照',status:'未完成',rptDr:'未指派'},
+  {id:'R0009',dt:'2026-11-03 09:40',cat:'健檢胸部X光',name:'胸部X光數位攝影',unit:'健檢中心',orderDr:'醫師丁',pt:'測試九號',sex:'男',age:55,pid:'TEST000009',order:'正常',img:'未照',status:'未完成',rptDr:'未指派'},
+  {id:'R0010',dt:'2026-11-03 10:20',cat:'門診放射',name:'胸部X光（正面）',unit:'家醫科',orderDr:'醫師辛',pt:'測試十號',sex:'男',age:49,pid:'TEST000010',order:'正常',img:'已照',status:'未完成',rptDr:'醫師甲'},
+];
+
+const CATS = ['健檢胸部X光','健檢乳攝','門診放射','心臟超音波','頸動脈超音波'];
+const TEMPLATES = {
+  '門診放射':    {title:'門診放射科報告',       fields:['Finding','Impression']},
+  '健檢胸部X光': {title:'健檢：胸部X光數位攝影', fields:['Lung','Others','Suggestion']},
+  '健檢乳攝':    {title:'健檢：2D+3D 乳攝',     fields:['Findings','Diagnosis']},
+  '心臟超音波':  {title:'心臟超音波',           fields:['Findings','Impression']},
+  '頸動脈超音波':{title:'頸動脈超音波',         fields:['Findings','Impression']},
+};
+const PHRASES = {
+  '健檢胸部X光':{Lung:['No active lung lesion.','Increased lung markings in both lungs.'],
+                 Others:['Normal heart size.','Mild scoliosis of thoracic spine.'],
+                 Suggestion:['Follow-up as clinically indicated.','Suggest further evaluation with chest CT.']},
+  '健檢乳攝':{Findings:['Scattered areas of fibroglandular density.'],
+              Diagnosis:['BI-RADS 1: Negative.','BI-RADS 2: Benign finding.']},
+  '門診放射':{Finding:['No active lung lesion.','No obvious bony abnormality.'],
+              Impression:['No significant abnormality.']},
+};
+const STATUSES = ['未完成','已完成','已認證'];
+const ST_CLASS = {'未完成':'pending','已完成':'done','已認證':'cert'};
+const ST_ICON  = {'未完成':'○','已完成':'◐','已認證':'✓'};
+const LOGIN_DR = '醫師甲';
+
+const COLS = [
+  {k:'status',label:'報告狀態'},{k:'id',label:'單號'},{k:'date',label:'檢查日期'},{k:'time',label:'檢查時間'},
+  {k:'cat',label:'檢查類別'},{k:'name',label:'檢查名稱'},{k:'pt',label:'病人（性別／年齡）'},{k:'pid',label:'身分證字號'},
+  {k:'unit',label:'開單單位'},{k:'orderDr',label:'開單醫師'},{k:'rptDr',label:'報告醫師'},{k:'img',label:'影像'},
+];
+
+const state = { sort:{k:'date',dir:1}, queue:[], currentId:null };
+const $ = s => document.querySelector(s);
+const get = id => EXAMS.find(e => e.id === id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uniq = arr => [...new Set(arr)];
+const badge = e => `<span class="badge st-${ST_CLASS[e.status]}">${ST_ICON[e.status]} ${e.status}</span>`;
+const canOpen = e => e.img === '已照';
+
+/* 依放射師訪談：已DC 且未照 → 從清單移除；已DC 但已照 → 保留並標示 */
+const inList = e => !(e.order === '已DC' && e.img === '未照');
+
+/* ===== 篩選 ===== */
+function fillSelect(id, opts, value){
+  $(id).innerHTML = opts.map(o => `<option${o===value?' selected':''}>${esc(o)}</option>`).join('');
+}
+function initFilters(){
+  fillSelect('#f-status', ['全部',...STATUSES], '全部');
+  fillSelect('#f-cat', ['全部',...CATS], '全部');
+  fillSelect('#f-unit', ['全部',...uniq(EXAMS.map(e=>e.unit))], '全部');
+  fillSelect('#f-orderDr', ['全部',...uniq(EXAMS.map(e=>e.orderDr))], '全部');
+  fillSelect('#f-rptDr', ['全部',...uniq(EXAMS.map(e=>e.rptDr))], LOGIN_DR);
+  $('#f-from').value = ''; $('#f-to').value = ''; $('#f-kw').value = '';
+}
+function getFilters(){
+  return {from:$('#f-from').value, to:$('#f-to').value, status:$('#f-status').value, cat:$('#f-cat').value,
+          unit:$('#f-unit').value, orderDr:$('#f-orderDr').value, rptDr:$('#f-rptDr').value, kw:$('#f-kw').value.trim().toUpperCase()};
+}
+const matchDr = (e,dr) => dr === '全部' || e.rptDr === dr;
+function filtered(){
+  const f = getFilters();
+  return EXAMS.filter(e => {
+    if(!inList(e) || !matchDr(e,f.rptDr)) return false;
+    if(f.status !== '全部' && e.status !== f.status) return false;
+    if(f.cat !== '全部' && e.cat !== f.cat) return false;
+    if(f.unit !== '全部' && e.unit !== f.unit) return false;
+    if(f.orderDr !== '全部' && e.orderDr !== f.orderDr) return false;
+    const d = e.dt.slice(0,10);
+    if(f.from && d < f.from) return false;
+    if(f.to && d > f.to) return false;
+    if(f.kw && !e.id.toUpperCase().includes(f.kw) && !e.pid.toUpperCase().includes(f.kw)) return false;
+    return true;
+  });
+}
+function sortVal(e,k){
+  if(k === 'date') return e.dt;
+  if(k === 'time') return e.dt.slice(11);
+  if(k === 'status') return STATUSES.indexOf(e.status);
+  return e[k];
+}
+function sorted(list){
+  const {k,dir} = state.sort;
+  return [...list].sort((a,b) => {
+    const va = sortVal(a,k), vb = sortVal(b,k);
+    const c = typeof va === 'number' ? va - vb : String(va).localeCompare(String(vb),'zh-Hant',{numeric:true});
+    return (c || a.dt.localeCompare(b.dt)) * (c ? dir : 1);
+  });
+}
+
+/* ===== 工作清單 ===== */
+function renderSummary(){
+  const f = getFilters();
+  const pending = EXAMS.filter(e => inList(e) && canOpen(e) && e.status === '未完成' && matchDr(e,f.rptDr));
+  const who = f.rptDr === '全部' ? '全部醫師' : f.rptDr;
+  $('#summary-title').textContent = `${who}・未完成報告`;
+  $('#summary-num').textContent = pending.length;
+  const chip = (cat,label,n) => `<button type="button" class="cat-chip ${n?'has':'zero'}" data-cat="${esc(cat)}" aria-pressed="${f.cat===cat}">
+      <span class="n">${n}</span><span class="t">${esc(label)}</span></button>`;
+  $('#summary-cats').innerHTML = chip('全部','全部類別',pending.length) +
+    CATS.map(c => chip(c,c,pending.filter(e=>e.cat===c).length)).join('');
+}
+function renderHead(){
+  $('#thead').innerHTML = '<tr>' + COLS.map(c => {
+    const on = state.sort.k === c.k;
+    const aria = on ? (state.sort.dir === 1 ? 'ascending' : 'descending') : 'none';
+    return `<th aria-sort="${aria}"><button type="button" data-sort="${c.k}">${c.label}<span class="arrow" aria-hidden="true">${on?(state.sort.dir===1?'▲':'▼'):''}</span></button></th>`;
+  }).join('') + '</tr>';
+}
+function renderBody(){
+  const rows = sorted(filtered());
+  $('#list-count').textContent = `共 ${rows.length} 筆・點選列開啟報告`;
+  if(!rows.length){ $('#tbody').innerHTML = `<tr><td class="empty" colspan="${COLS.length}">沒有符合條件的檢查</td></tr>`; return; }
+  $('#tbody').innerHTML = rows.map(e => {
+    const open = canOpen(e), dc = e.order === '已DC';
+    const cls = [`st-${ST_CLASS[e.status]}`, dc?'is-dc':'', open?'is-open':'is-locked'].join(' ');
+    return `<tr class="${cls}" data-id="${e.id}" tabindex="${open?0:-1}" aria-label="${e.id} ${e.pt} ${e.name} ${e.status}${dc?' 醫令已DC':''}${open?'':' 未照影像'}">
+      <td>${badge(e)}</td>
+      <td><span class="id-cell">${e.id}${dc?'<span class="badge dc">醫令已DC</span>':''}</span></td>
+      <td>${e.dt.slice(0,10)}</td><td>${e.dt.slice(11)}</td>
+      <td>${esc(e.cat)}</td><td>${esc(e.name)}</td>
+      <td>${esc(e.pt)}（${e.sex}／${e.age}）</td><td>${e.pid}</td>
+      <td>${esc(e.unit)}</td><td>${esc(e.orderDr)}</td>
+      <td>${e.rptDr==='未指派'?'<span class="unassigned">未指派</span>':esc(e.rptDr)}</td>
+      <td>${open?'已照':'<span class="badge noimg">未照影像</span>'}</td></tr>`;
+  }).join('');
+}
+function updateList(){ renderSummary(); renderHead(); renderBody(); }
+
+/* ===== 打報告畫面 ===== */
+function openReport(id){
+  state.queue = sorted(filtered()).filter(canOpen).map(e => e.id);   // 以進入時的清單順序作為工作佇列
+  if(!state.queue.includes(id)) state.queue.push(id);
+  state.currentId = id;
+  $('#list-view').hidden = true;
+  $('#report-view').hidden = false;
+  renderReport();
+}
+function nbInfo(e){
+  return `<span class="nb-line"><span class="nb-id">${e.id}</span>${badge(e)}${e.order==='已DC'?'<span class="badge dc">DC</span>':''}</span>
+          <span class="nb-name">${esc(e.pt)}・${esc(e.name)}</span>`;
+}
+function renderReport(){
+  const e = get(state.currentId), tpl = TEMPLATES[e.cat], q = state.queue, i = q.indexOf(e.id);
+  const prev = i > 0 ? get(q[i-1]) : null, next = i < q.length-1 ? get(q[i+1]) : null;
+  const remaining = q.filter(id => get(id).status === '未完成').length;
+  const locked = e.status === '已認證', dc = e.order === '已DC';
+  const vals = e.draft || e.report || {};
+  const phr = PHRASES[e.cat] || {};
+
+  $('#report-view').innerHTML = `
+    <div class="rp-bar">
+      <button type="button" class="btn btn-ghost" id="rp-back">← 返回工作清單</button>
+      <h1 class="rp-title" id="rp-title" tabindex="-1">打報告　<span class="muted">${e.id}</span></h1>
+      <div class="rp-progress">第 ${i+1} / ${q.length} 筆・本清單未完成 <strong>${remaining}</strong> 份</div>
+    </div>
+
+    <section class="patient" aria-label="個案資訊">
+      <dl>
+        <div><dt>姓名</dt><dd>${esc(e.pt)}</dd></div>
+        <div><dt>性別／年齡</dt><dd>${e.sex}／${e.age}</dd></div>
+        <div><dt>身分證字號</dt><dd>${e.pid}</dd></div>
+        <div><dt>檢查名稱</dt><dd>${esc(e.name)}</dd></div>
+        <div><dt>檢查日期時間</dt><dd>${e.dt}</dd></div>
+        <div><dt>開單日期</dt><dd title="模擬資料未提供">—</dd></div>
+        <div><dt>開單單位</dt><dd>${esc(e.unit)}</dd></div>
+        <div><dt>開單醫師</dt><dd>${esc(e.orderDr)}</dd></div>
+        <div><dt>報告醫師</dt><dd>${esc(e.rptDr)}</dd></div>
+      </dl>
+    </section>
+
+    <nav class="neighbors" aria-label="上一筆、目前、下一筆">
+      <button type="button" class="nb" data-go="${i-1}" ${prev?'':'disabled'}><span class="nb-dir">← 上一筆</span>${prev?nbInfo(prev):'<span class="muted">已是第一筆</span>'}</button>
+      <div class="nb nb-cur" aria-current="true"><span class="nb-dir">目前</span>${nbInfo(e)}</div>
+      <button type="button" class="nb" data-go="${i+1}" ${next?'':'disabled'}><span class="nb-dir">下一筆 →</span>${next?nbInfo(next):'<span class="muted">已是最後一筆</span>'}</button>
+    </nav>
+
+    <div class="rp-main">
+      <section class="viewer" aria-label="影像顯示區">
+        <div class="viewer-box">
+          <div class="viewer-label">影像顯示區</div>
+          <div>${esc(e.name)}・${e.id}</div>
+          <div class="viewer-note">PACS 影像示意（雛型未串接）</div>
+        </div>
+      </section>
+
+      <section class="report" aria-labelledby="tpl-title">
+        <div class="report-head"><h2 id="tpl-title">${esc(tpl.title)}</h2>${badge(e)}</div>
+        <div class="report-body">
+          ${dc ? '<div class="notice dc" role="note">醫令已 DC（檢查已完成照影像），請確認是否仍需撰寫報告。</div>' : ''}
+          ${locked ? '<div class="notice lock" role="note">此報告已認證，內容不可修改。</div>' : ''}
+          ${e.cat === '門診放射' ? '<div class="his"><strong>HIS 診斷、S、O</strong><span class="muted">（示意位置，雛型未串接 HIS）</span></div>' : ''}
+          ${tpl.fields.map(f => `
+            <div class="field">
+              <label for="fld-${f}">${f}</label>
+              ${(phr[f]||[]).length
+                ? `<div class="phrases" role="group" aria-label="${f} 片語">${phr[f].map(p => `<button type="button" class="chip" data-field="${f}" data-phrase="${esc(p)}" ${locked?'disabled':''}>＋ ${esc(p)}</button>`).join('')}</div>`
+                : '<p class="no-phrase">此範本尚未設定片語</p>'}
+              <textarea id="fld-${f}" data-field="${f}" ${locked?'readonly':''}>${esc(vals[f]||'')}</textarea>
+            </div>`).join('')}
+        </div>
+        <div class="actions">
+          <div class="grp">
+            <button type="button" class="btn" data-go="${i-1}" ${prev?'':'disabled'}>← 上一筆</button>
+            <button type="button" class="btn" data-go="${i+1}" ${next?'':'disabled'}>下一筆 →</button>
+          </div>
+          <div class="grp">
+            <span id="dirty" class="dirty" ${e.draft?'':'hidden'}>● 尚未儲存</span>
+            <button type="button" class="btn btn-primary" id="act-save" ${locked?'disabled':''}>儲存並跳下一筆 <kbd>Ctrl+S</kbd></button>
+            <button type="button" class="btn btn-cert" id="act-cert" ${locked?'disabled':''}>認證並跳下一筆</button>
+          </div>
+        </div>
+      </section>
+    </div>`;
+  window.scrollTo(0,0);
+  $('#rp-title').focus({preventScroll:true});
+}
+function nextUnfinished(fromId){
+  const q = state.queue, i = q.indexOf(fromId);
+  return [...q.slice(i+1), ...q.slice(0,i)].find(id => get(id).status === '未完成' && canOpen(get(id)));
+}
+function commit(kind){
+  const e = get(state.currentId);
+  if(e.status === '已認證') return;
+  const vals = {};
+  document.querySelectorAll('#report-view textarea').forEach(t => vals[t.dataset.field] = t.value.trim());
+  if(Object.values(vals).every(v => !v)){
+    toast('請至少填寫一個欄位再儲存', true);
+    $('#report-view textarea')?.focus();
+    return;
+  }
+  e.report = vals; e.draft = null;
+  e.status = kind === 'cert' ? '已認證' : '已完成';
+  const verb = kind === 'cert' ? '認證' : '儲存';
+  const n = nextUnfinished(e.id);
+  if(n){
+    state.currentId = n;
+    renderReport();
+    toast(`${e.id} 已${verb}，已跳到下一筆未完成：${n}`);
+  }else{
+    renderReport();
+    toast(`${e.id} 已${verb}`);
+    $('#done').hidden = false;
+    $('#done-back').focus();
+  }
+}
+function backToList(){
+  $('#done').hidden = true;
+  $('#report-view').hidden = true;
+  $('#list-view').hidden = false;
+  updateList();
+  document.querySelector(`#tbody tr[data-id="${state.currentId}"]`)?.focus();
+}
+
+/* ===== 提示 ===== */
+let toastTimer;
+function toast(msg, warn){
+  const t = $('#toast');
+  t.textContent = msg; t.classList.toggle('warn', !!warn); t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ===== 事件 ===== */
+$('#filters').addEventListener('input', updateList);
+$('#filters').addEventListener('change', updateList);
+$('#f-reset').addEventListener('click', () => { initFilters(); updateList(); });
+$('#summary-cats').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-cat]'); if(!b) return;
+  $('#f-cat').value = b.dataset.cat; updateList();
+});
+$('#thead').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-sort]'); if(!b) return;
+  const k = b.dataset.sort;
+  state.sort = state.sort.k === k ? {k, dir:-state.sort.dir} : {k, dir:1};
+  renderHead(); renderBody();
+});
+function rowActivate(tr){
+  if(!tr) return;
+  const e = get(tr.dataset.id);
+  if(!canOpen(e)){ toast(`${e.id} 尚未照影像，無法撰寫報告`, true); return; }
+  openReport(e.id);
+}
+$('#tbody').addEventListener('click', ev => rowActivate(ev.target.closest('tr[data-id]')));
+$('#tbody').addEventListener('keydown', ev => {
+  if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); rowActivate(ev.target.closest('tr[data-id]')); }
+});
+
+$('#report-view').addEventListener('click', ev => {
+  const t = ev.target;
+  if(t.closest('#rp-back')) return backToList();
+  if(t.closest('#act-save')) return commit('save');
+  if(t.closest('#act-cert')) return commit('cert');
+  const go = t.closest('[data-go]');
+  if(go && !go.disabled){ const id = state.queue[+go.dataset.go]; if(id){ state.currentId = id; renderReport(); } return; }
+  const chip = t.closest('.chip');
+  if(chip){
+    const ta = $(`#fld-${chip.dataset.field}`);
+    const cur = ta.value.replace(/\s+$/,'');
+    ta.value = cur ? cur + '\n' + chip.dataset.phrase : chip.dataset.phrase;
+    ta.dispatchEvent(new Event('input', {bubbles:true}));
+    ta.focus();
+  }
+});
+$('#report-view').addEventListener('input', ev => {
+  if(ev.target.tagName !== 'TEXTAREA') return;
+  const e = get(state.currentId);
+  e.draft = e.draft || {...(e.report || {})};
+  e.draft[ev.target.dataset.field] = ev.target.value;
+  $('#dirty').hidden = false;
+});
+document.addEventListener('keydown', ev => {
+  if(!$('#done').hidden && ev.key === 'Escape'){ backToList(); return; }
+  if(!$('#report-view').hidden && (ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's'){
+    ev.preventDefault(); commit('save');
+  }
+});
+$('#done-back').addEventListener('click', backToList);
+
+initFilters();
+updateList();
+</script>
 </body>
 </html>
