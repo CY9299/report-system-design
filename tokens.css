@@ -1,0 +1,36 @@
+/* 設計系統起始範本
+   以這份檔案為起點調整，並在 design-system.md 說明每個變數的用途與使用規則。
+   報告狀態色刻意留給你自行定義。 */
+
+:root {
+  /* 色彩：基本 */
+  --color-primary: #1f5fa8;
+  --color-bg: #ffffff;
+  --color-surface: #f5f7fa;
+  --color-text: #1f2933;
+  --color-text-muted: #5f6b7a;
+  --color-border: #d5dbe3;
+
+  /* 色彩：報告狀態（請改成你定義的顏色，並在 design-system.md 說明） */
+  --status-pending: #9aa5b1;    /* 未完成 */
+  --status-done: #9aa5b1;       /* 已完成 */
+  --status-certified: #9aa5b1;  /* 已認證 */
+  --status-dc: #9aa5b1;         /* 醫令已 DC */
+
+  /* 字級 */
+  --font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+  --font-size-sm: 13px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 22px;
+
+  /* 間距 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+
+  /* 圓角 */
+  --radius: 6px;
+}

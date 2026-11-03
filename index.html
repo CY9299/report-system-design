@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>報告系統雛型（範本預設頁）</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: var(--font-family);
+      font-size: var(--font-size-md);
+      color: var(--color-text);
+      background: var(--color-surface);
+      line-height: 1.6;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: var(--space-6) var(--space-4);
+    }
+    h1 { font-size: var(--font-size-xl); margin: 0 0 var(--space-2); }
+    h2 { font-size: var(--font-size-lg); margin: var(--space-6) 0 var(--space-2); }
+    p { margin: 0 0 var(--space-3); max-width: 70ch; }
+    .notice {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--color-primary);
+      border-radius: var(--radius);
+      padding: var(--space-4);
+    }
+    .table-wrap { overflow-x: auto; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius); }
+    table { border-collapse: collapse; width: 100%; font-size: var(--font-size-sm); }
+    th, td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+    th { color: var(--color-text-muted); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .status { color: var(--color-text-muted); }
+    code { font-size: 0.95em; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>報告系統雛型</h1>
+    <div class="notice">
+      <p>看到這個頁面，代表 GitHub Pages 已經發布成功。</p>
+      <p>完成雛型後，把你的雛型檔案命名為 <code>index.html</code> 上傳，取代這個頁面。</p>
+    </div>
+
+    <h2>模擬資料檢查</h2>
+    <p class="status" id="status">正在讀取 <code>data/exams.json</code>…</p>
+    <div class="table-wrap" hidden id="wrap">
+      <table>
+        <thead>
+          <tr><th>單號</th><th>檢查日期時間</th><th>檢查類別</th><th>醫令狀態</th><th>影像</th><th>報告狀態</th><th>報告醫師</th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+  <script>
+    fetch('data/exams.json')
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (exams) {
+        var rows = document.getElementById('rows');
+        exams.forEach(function (e) {
+          var tr = document.createElement('tr');
+          [e.exam_no, e.exam_at, e.category, e.order_status, e.image_taken ? '已照' : '未照', e.report_status, e.report_doctor || '未指派']
+            .forEach(function (v) {
+              var td = document.createElement('td');
+              td.textContent = v;
+              tr.appendChild(td);
+            });
+          rows.appendChild(tr);
+        });
+        document.getElementById('status').textContent = '已讀取 ' + exams.length + ' 筆模擬檢查資料。';
+        document.getElementById('wrap').hidden = false;
+      })
+      .catch(function (err) {
+        document.getElementById('status').textContent = '無法讀取模擬資料（' + err.message + '）。請確認 data 資料夾已上傳。直接用瀏覽器開啟本機檔案時也會出現這個訊息，發布到 GitHub Pages 後即可正常讀取。';
+      });
+  </script>
+</body>
+</html>
