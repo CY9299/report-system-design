@@ -1,36 +1,70 @@
-/* 設計系統起始範本
-   以這份檔案為起點調整，並在 design-system.md 說明每個變數的用途與使用規則。
-   報告狀態色刻意留給你自行定義。 */
+/* 影像報告撰寫系統｜設計 tokens
+   以起始範本為基礎整理，規則說明見 design-system.md。
+   標示「新增」的變數是範本沒有、由雛型盤點整理出來的。
+   報告狀態色採用 B 組「色覺友善色相」（2026-11-03 決定）。 */
 
 :root {
-  /* 色彩：基本 */
-  --color-primary: #1f5fa8;
-  --color-bg: #ffffff;
-  --color-surface: #f5f7fa;
-  --color-text: #1f2933;
-  --color-text-muted: #5f6b7a;
-  --color-border: #d5dbe3;
+  /* ── 色彩：基本 ── */
+  --color-primary: #1f5fa8;          /* 主要按鈕、連結、焦點框 */
+  --color-primary-hover: #194d88;    /* 新增：主要按鈕滑過 */
+  --color-primary-soft: #e8eff8;     /* 新增：選取狀態底色（分項晶片、目前這筆） */
+  --color-bg: #ffffff;               /* 卡片、表格、輸入框底色 */
+  --color-surface: #f5f7fa;          /* 頁面底色、表頭、次要區塊 */
+  --color-text: #1f2933;             /* 主要文字 */
+  --color-text-muted: #5f6b7a;       /* 次要文字、欄位標籤 */
+  --color-border: #d5dbe3;           /* 卡片與表格分隔線（裝飾用） */
+  --color-border-input: #7b8594;     /* 新增：輸入框、次要按鈕框線（對白底 3.7:1） */
+  --color-danger: #b42318;           /* 新增：錯誤訊息、危險操作（不與醫令已 DC 共用） */
+  --color-danger-bg: #fdeceb;        /* 新增：錯誤訊息底色 */
+  --color-focus: #1f5fa8;            /* 新增：鍵盤焦點框 */
+  --color-image-bg: #2f343c;         /* 新增：影像顯示區底色 */
+  --color-image-text: #c8cdd5;       /* 新增：影像顯示區文字 */
+  --color-overlay: rgba(20, 25, 35, .45); /* 新增：對話框遮罩 */
 
-  /* 色彩：報告狀態（請改成你定義的顏色，並在 design-system.md 說明） */
-  --status-pending: #9aa5b1;    /* 未完成 */
-  --status-done: #9aa5b1;       /* 已完成 */
-  --status-certified: #9aa5b1;  /* 已認證 */
-  --status-dc: #9aa5b1;         /* 醫令已 DC */
+  /* ── 色彩：報告狀態（B 組：色覺友善色相，以 Okabe-Ito 色盤調深） ──
+     橘＝未完成、天藍＝已完成、藍綠＝已認證、洋紅紅＝醫令已 DC。
+     三種報告狀態都有列底色；標籤底色與列底色相同。
+     每個狀態四個變數：
+     --status-x         文字、圖示、左側標記
+     --status-x-bg      清單列底色
+     --status-x-badge   狀態標籤底色
+     --status-x-border  狀態標籤框線 */
+  --status-pending: #8f4500;   --status-pending-bg: #fdecd8;   --status-pending-badge: #fdecd8;   --status-pending-border: #e7a76a;   /* 未完成 */
+  --status-done: #0d5a80;      --status-done-bg: #e0f1fa;      --status-done-badge: #e0f1fa;      --status-done-border: #86c2e2;      /* 已完成 */
+  --status-certified: #00624a; --status-certified-bg: #d9f2ea; --status-certified-badge: #d9f2ea; --status-certified-border: #7fc8b2; /* 已認證 */
+  --status-dc: #b0204a;        --status-dc-bg: #fbe5ec;        --status-dc-border: #e79ab2;       /* 醫令已 DC：左側標記＋標籤，不當列底色；-bg 只用於標籤與提示框 */
 
-  /* 字級 */
+  /* ── 字級 ── */
   --font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
-  --font-size-sm: 13px;
-  --font-size-md: 15px;
-  --font-size-lg: 18px;
-  --font-size-xl: 22px;
+  --font-family-mono: ui-monospace, "Cascadia Mono", Consolas, monospace; /* 新增：僅用於快捷鍵提示 */
+  --font-size-sm: 13px;        /* 欄位標籤、狀態標籤、片語、輔助說明 */
+  --font-size-md: 15px;        /* 內文、表格、輸入框、按鈕 */
+  --font-size-lg: 18px;        /* 區塊標題、頁面標題 */
+  --font-size-xl: 22px;        /* 分項數量 */
+  --font-size-display: 40px;   /* 新增：未完成總數（全畫面只用一處） */
+  --font-weight-regular: 400;  /* 新增 */
+  --font-weight-medium: 600;   /* 新增：標籤、表頭、按鈕 */
+  --font-weight-bold: 700;     /* 新增：標題、數字 */
+  --line-height: 1.5;          /* 新增 */
+  --line-height-tight: 1.2;    /* 新增：大數字 */
 
-  /* 間距 */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
+  /* ── 間距 ── */
+  --space-1: 4px;   /* 圖示與文字、標籤內距 */
+  --space-2: 8px;   /* 同組元件之間 */
+  --space-3: 12px;  /* 表格儲存格、按鈕水平內距 */
+  --space-4: 16px;  /* 卡片內距、區塊之間、頁面左右邊界 */
+  --space-6: 24px;  /* 大區塊之間、對話框內距 */
 
-  /* 圓角 */
-  --radius: 6px;
+  /* ── 尺寸（新增） ── */
+  --control-height: 36px;      /* 輸入框、下拉選單、按鈕統一高度 */
+  --row-height: 44px;          /* 清單列最小高度 */
+  --status-marker-width: 4px;  /* 醫令已 DC 左側標記寬度 */
+
+  /* ── 圓角 ── */
+  --radius: 6px;          /* 按鈕、輸入框 */
+  --radius-lg: 8px;       /* 新增：卡片、影像區、對話框 */
+  --radius-pill: 999px;   /* 新增：狀態標籤、片語 */
+
+  /* ── 陰影（新增） ── */
+  --shadow-overlay: 0 12px 40px rgba(0, 0, 0, .25); /* 對話框、提示訊息 */
 }
