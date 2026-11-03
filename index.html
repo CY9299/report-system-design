@@ -5,158 +5,230 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>影像報告系統 雛型</title>
 <style>
-:root{
-  --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f8f9fb; --border:#d7dbe2; --border-strong:#b9c0cb;
-  --text:#1c2330; --muted:#5a6474; --primary:#1d5bbf; --primary-hover:#174a9c; --primary-soft:#e6eefb;
-  --pending-bg:#fff5e1; --pending-ink:#7d5200; --pending-bd:#eec36a;
-  --done-bg:#e7f0fd; --done-ink:#1b4c97; --done-bd:#98b9ea;
-  --cert-bg:#e6f5eb; --cert-ink:#1a6636; --cert-bd:#8ccaa2;
-  --dc-ink:#a1251a; --dc-bg:#fdebe9; --dc-bd:#e9a39b;
-  --img-bg:#2f343c; --img-ink:#c8cdd5;
-  --radius:8px;
+/* 影像報告撰寫系統｜設計 tokens
+   以起始範本為基礎整理，規則說明見 design-system.md。
+   標示「新增」的變數是範本沒有、由雛型盤點整理出來的。
+   報告狀態色採用 B 組「色覺友善色相」（2026-11-03 決定，取代先前的 C 組）。 */
+
+:root {
+  /* ── 色彩：基本 ── */
+  --color-primary: #1f5fa8;          /* 主要按鈕、連結、焦點框 */
+  --color-primary-hover: #194d88;    /* 新增：主要按鈕滑過 */
+  --color-primary-soft: #e8eff8;     /* 新增：選取狀態底色（分項晶片、目前這筆） */
+  --color-bg: #ffffff;               /* 卡片、表格、輸入框底色 */
+  --color-surface: #f5f7fa;          /* 頁面底色、表頭、次要區塊 */
+  --color-text: #1f2933;             /* 主要文字 */
+  --color-text-muted: #5f6b7a;       /* 次要文字、欄位標籤 */
+  --color-border: #d5dbe3;           /* 卡片與表格分隔線（裝飾用） */
+  --color-border-input: #7b8594;     /* 新增：輸入框、次要按鈕框線（對白底 3.7:1） */
+  --color-danger: #b42318;           /* 新增：錯誤訊息、危險操作（不與醫令已 DC 共用） */
+  --color-danger-bg: #fdeceb;        /* 新增：錯誤訊息底色 */
+  --color-focus: #1f5fa8;            /* 新增：鍵盤焦點框 */
+  --color-image-bg: #2f343c;         /* 新增：影像顯示區底色 */
+  --color-image-text: #c8cdd5;       /* 新增：影像顯示區文字 */
+  --color-overlay: rgba(20, 25, 35, .45); /* 新增：對話框遮罩 */
+
+  /* ── 色彩：報告狀態（B 組：色覺友善色相，以 Okabe-Ito 色盤調深） ──
+     橘＝未完成、天藍＝已完成、藍綠＝已認證、洋紅紅＝醫令已 DC。
+     三種報告狀態都有列底色；標籤底色與列底色相同。
+     每個狀態四個變數：
+     --status-x         文字、圖示、左側標記
+     --status-x-bg      清單列底色
+     --status-x-badge   狀態標籤底色
+     --status-x-border  狀態標籤框線 */
+  --status-pending: #8f4500;   --status-pending-bg: #fdecd8;   --status-pending-badge: #fdecd8;   --status-pending-border: #e7a76a;   /* 未完成 */
+  --status-done: #0d5a80;      --status-done-bg: #e0f1fa;      --status-done-badge: #e0f1fa;      --status-done-border: #86c2e2;      /* 已完成 */
+  --status-certified: #00624a; --status-certified-bg: #d9f2ea; --status-certified-badge: #d9f2ea; --status-certified-border: #7fc8b2; /* 已認證 */
+  --status-dc: #b0204a;        --status-dc-bg: #fbe5ec;        --status-dc-border: #e79ab2;       /* 醫令已 DC：左側標記＋標籤，不當列底色；-bg 只用於標籤與提示框 */
+
+  /* ── 字級 ── */
+  --font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+  --font-family-mono: ui-monospace, "Cascadia Mono", Consolas, monospace; /* 新增：僅用於快捷鍵提示 */
+  --font-size-sm: 13px;        /* 欄位標籤、狀態標籤、片語、輔助說明 */
+  --font-size-md: 15px;        /* 內文、表格、輸入框、按鈕 */
+  --font-size-lg: 18px;        /* 區塊標題、頁面標題 */
+  --font-size-xl: 22px;        /* 分項數量 */
+  --font-size-display: 40px;   /* 新增：未完成總數（全畫面只用一處） */
+  --font-weight-regular: 400;  /* 新增 */
+  --font-weight-medium: 600;   /* 新增：標籤、表頭、按鈕 */
+  --font-weight-bold: 700;     /* 新增：標題、數字 */
+  --line-height: 1.5;          /* 新增 */
+  --line-height-tight: 1.2;    /* 新增：大數字 */
+
+  /* ── 間距 ── */
+  --space-1: 4px;   /* 圖示與文字、標籤內距 */
+  --space-2: 8px;   /* 同組元件之間 */
+  --space-3: 12px;  /* 表格儲存格、按鈕水平內距 */
+  --space-4: 16px;  /* 卡片內距、區塊之間、頁面左右邊界 */
+  --space-6: 24px;  /* 大區塊之間、對話框內距 */
+
+  /* ── 尺寸（新增） ── */
+  --control-height: 36px;      /* 輸入框、下拉選單、按鈕統一高度 */
+  --row-height: 44px;          /* 清單列最小高度 */
+  --status-marker-width: 4px;  /* 醫令已 DC 左側標記寬度 */
+
+  /* ── 圓角 ── */
+  --radius: 6px;          /* 按鈕、輸入框 */
+  --radius-lg: 8px;       /* 新增：卡片、影像區、對話框 */
+  --radius-pill: 999px;   /* 新增：狀態標籤、片語 */
+
+  /* ── 陰影（新增） ── */
+  --shadow-overlay: 0 12px 40px rgba(0, 0, 0, .25); /* 對話框、提示訊息 */
 }
+
+
+/* ===== 以下只使用 tokens 變數 ===== */
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
-  font:14px/1.5 "PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif}
+body{margin:0;background:var(--color-surface);color:var(--color-text);
+  font:var(--font-weight-regular) var(--font-size-md)/var(--line-height) var(--font-family)}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
-.muted{color:var(--muted)}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
 [hidden]{display:none !important}
+.muted{color:var(--color-text-muted)}
+h1,h2,p{margin:0}
 
-/* header */
-.app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
-.brand-mark{width:14px;height:14px;border-radius:3px;background:var(--primary)}
-.role-tag{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary)}
-main{max-width:1480px;margin:0 auto;padding:16px 20px 40px}
+/* 版面 */
+.app-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);
+  min-height:calc(var(--control-height) + var(--space-4));padding:0 var(--space-4);background:var(--color-bg);border-bottom:1px solid var(--color-border)}
+.brand{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)}
+.role-tag{padding:0 var(--space-2);border-radius:var(--radius-pill);background:var(--color-primary-soft);color:var(--color-primary);
+  font-size:var(--font-size-sm);font-weight:var(--font-weight-medium)}
+main{max-width:1480px;margin:0 auto;padding:var(--space-4)}
+.card{background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
 
-/* buttons */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border-strong);
-  background:var(--surface);border-radius:6px;cursor:pointer;white-space:nowrap}
-.btn:hover:not(:disabled){background:var(--surface-2)}
+/* 圖示 */
+.ic{width:14px;height:14px;flex:none}
+
+/* 按鈕：主要／次要 */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);height:var(--control-height);padding:0 var(--space-3);
+  border:1px solid var(--color-border-input);border-radius:var(--radius);background:var(--color-bg);color:var(--color-text);
+  font-size:var(--font-size-md);font-weight:var(--font-weight-medium);white-space:nowrap;cursor:pointer}
+.btn:hover:not(:disabled){background:var(--color-surface)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
-.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
-.btn-primary:hover:not(:disabled){background:var(--primary-hover)}
-.btn-cert{border-color:var(--cert-ink);color:var(--cert-ink);font-weight:600}
-.btn-ghost{border-color:transparent;background:transparent}
-kbd{font:11px/1 ui-monospace,monospace;padding:2px 5px;border-radius:4px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35)}
+.btn-primary{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-bg)}
+.btn-primary:hover:not(:disabled){background:var(--color-primary-hover);border-color:var(--color-primary-hover)}
+kbd{font-family:var(--font-family-mono);font-size:var(--font-size-sm);line-height:var(--line-height-tight);padding:0 var(--space-1);
+  border:1px solid currentColor;border-radius:var(--radius);opacity:.85}
 
-/* badges */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
-.badge.st-pending{background:var(--pending-bg);color:var(--pending-ink);border-color:var(--pending-bd)}
-.badge.st-done{background:var(--done-bg);color:var(--done-ink);border-color:var(--done-bd)}
-.badge.st-cert{background:var(--cert-bg);color:var(--cert-ink);border-color:var(--cert-bd)}
-.badge.dc{background:var(--dc-bg);color:var(--dc-ink);border-color:var(--dc-bd)}
-.badge.noimg{background:#eef0f3;color:var(--muted);border-color:var(--border)}
+/* 狀態標籤 */
+.badge{display:inline-flex;align-items:center;gap:var(--space-1);padding:0 var(--space-2);border:1px solid;border-radius:var(--radius-pill);
+  font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);line-height:var(--line-height);white-space:nowrap}
+.badge.st-pending{color:var(--status-pending);background:var(--status-pending-badge);border-color:var(--status-pending-border)}
+.badge.st-done{color:var(--status-done);background:var(--status-done-badge);border-color:var(--status-done-border)}
+.badge.st-cert{color:var(--status-certified);background:var(--status-certified-badge);border-color:var(--status-certified-border)}
+.badge.dc{color:var(--status-dc);background:var(--status-dc-bg);border-color:var(--status-dc-border)}
+.badge.neutral{color:var(--color-text-muted);background:var(--color-surface);border-color:var(--color-border)}
 
-/* summary */
-.summary{display:flex;align-items:stretch;gap:16px;flex-wrap:wrap;background:var(--surface);
-  border:1px solid var(--border);border-left:6px solid var(--pending-bd);border-radius:var(--radius);padding:14px 18px;margin-bottom:12px}
-.summary-total{display:flex;flex-direction:column;justify-content:center;min-width:170px;padding-right:18px;border-right:1px solid var(--border)}
-.summary-label{margin:0;font-size:14px;font-weight:600;color:var(--muted)}
-.summary-num{font-size:44px;font-weight:800;line-height:1.1;color:var(--pending-ink)}
-.summary-unit{margin-left:4px;font-size:16px;color:var(--muted)}
-.summary-cats{display:flex;flex-wrap:wrap;gap:10px;align-items:center;flex:1}
-.cat-chip{display:flex;flex-direction:column;align-items:flex-start;min-width:118px;padding:8px 12px;
-  border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);cursor:pointer;text-align:left}
-.cat-chip:hover{border-color:var(--border-strong)}
-.cat-chip .n{font-size:24px;font-weight:800;line-height:1.2}
-.cat-chip .t{font-size:13px;color:var(--muted)}
-.cat-chip.has .n{color:var(--pending-ink)}
-.cat-chip.zero .n{color:#a0a7b2}
-.cat-chip[aria-pressed="true"]{border:2px solid var(--primary);background:var(--primary-soft);padding:7px 11px}
+/* 未完成數量 */
+.summary{display:flex;align-items:stretch;gap:var(--space-4);flex-wrap:wrap;padding:var(--space-4);margin-bottom:var(--space-3);
+  border-left:var(--status-marker-width) solid var(--status-pending-border)}
+.summary-total{display:flex;flex-direction:column;justify-content:center;min-width:160px;padding-right:var(--space-4);border-right:1px solid var(--color-border)}
+.summary-label{font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-muted)}
+.summary-num{font-size:var(--font-size-display);font-weight:var(--font-weight-bold);line-height:var(--line-height-tight);color:var(--status-pending)}
+.summary-unit{margin-left:var(--space-1);color:var(--color-text-muted)}
+.summary-cats{display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;flex:1}
+.cat-chip{display:flex;flex-direction:column;align-items:flex-start;min-width:120px;padding:var(--space-2) var(--space-3);
+  border:1px solid var(--color-border-input);border-radius:var(--radius);background:var(--color-bg);text-align:left;cursor:pointer}
+.cat-chip:hover{background:var(--color-surface)}
+.cat-chip .n{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);line-height:var(--line-height-tight)}
+.cat-chip .t{font-size:var(--font-size-sm);color:var(--color-text-muted)}
+.cat-chip.has .n{color:var(--status-pending)}
+.cat-chip.zero .n{color:var(--color-text-muted)}
+.cat-chip[aria-pressed="true"]{background:var(--color-primary-soft);border-color:var(--color-primary);box-shadow:inset 0 0 0 1px var(--color-primary)}
 
-/* filters */
-.filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 12px;
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:10px}
-.f{display:flex;flex-direction:column;gap:3px}
-.f label{font-size:12px;font-weight:600;color:var(--muted)}
-.f input,.f select{height:34px;padding:4px 8px;border:1px solid var(--border-strong);border-radius:6px;background:#fff}
+/* 表單欄位 */
+.filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--space-3);align-items:end;padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3)}
+.f{display:flex;flex-direction:column;gap:var(--space-1)}
 .f-wide{grid-column:span 2}
-.f-actions{justify-content:flex-end}
-.list-meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:4px 2px 8px}
-.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+.f-label,.field-label{font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-muted)}
+.input{height:var(--control-height);padding:0 var(--space-2);border:1px solid var(--color-border-input);border-radius:var(--radius);
+  background:var(--color-bg);font-size:var(--font-size-md)}
+textarea.input{display:block;width:100%;height:auto;min-height:96px;padding:var(--space-2);resize:vertical;line-height:var(--line-height)}
+.input:focus{border-color:var(--color-primary);outline:3px solid var(--color-focus);outline-offset:2px}
+.input[readonly]{background:var(--color-surface)}
+.input[aria-invalid="true"]{border-color:var(--color-danger)}
+.field-error{display:flex;align-items:center;gap:var(--space-1);color:var(--color-danger);font-size:var(--font-size-sm);font-weight:var(--font-weight-medium)}
 
-/* table */
-.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
-table.worklist{width:100%;border-collapse:collapse;min-width:1080px}
-.worklist th{position:sticky;top:0;background:var(--surface-2);border-bottom:1px solid var(--border);text-align:left;padding:0;font-size:13px}
-.worklist th button{width:100%;display:flex;align-items:center;gap:4px;padding:9px 10px;border:0;background:transparent;font-weight:700;cursor:pointer;text-align:left}
-.worklist th button:hover{background:#eef1f5}
-.worklist th .arrow{color:var(--muted);font-size:11px;min-width:10px}
-.worklist td{padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;vertical-align:middle}
+/* 清單 */
+.list-meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-2)}
+.legend{display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center}
+.table-wrap{overflow-x:auto}
+table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
+.worklist th{position:sticky;top:0;padding:0;background:var(--color-surface);border-bottom:1px solid var(--color-border);text-align:left}
+.worklist th button{display:flex;align-items:center;gap:var(--space-1);width:100%;height:var(--row-height);padding:0 var(--space-3);border:0;background:transparent;
+  font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);text-align:left;cursor:pointer}
+.worklist th button:hover{background:var(--color-border)}
+.worklist th .arrow{min-width:10px;color:var(--color-text-muted)}
+.worklist td{height:var(--row-height);padding:0 var(--space-3);border-bottom:1px solid var(--color-border);background:var(--color-bg);white-space:nowrap}
+.worklist td:first-child{position:relative}
+.worklist tr.st-pending td{background:var(--status-pending-bg)}
+.worklist tr.st-done td{background:var(--status-done-bg)}
+.worklist tr.st-cert td{background:var(--status-certified-bg)}
 .worklist tr.is-open{cursor:pointer}
-.worklist tr.st-pending td{background:var(--pending-bg)}
-.worklist tr.st-done td{background:var(--done-bg)}
-.worklist tr.st-cert td{background:var(--cert-bg)}
-.worklist tr.is-open:hover td{filter:brightness(.97)}
-.worklist tr.is-dc td:first-child{box-shadow:inset 4px 0 0 var(--dc-ink)}
-.worklist tr.is-locked td{background:#f1f2f4;color:var(--muted)}
+.worklist tr.is-open:hover td{box-shadow:inset 0 1px 0 var(--color-border-input),inset 0 -1px 0 var(--color-border-input)}
+.worklist tr.is-selected td{box-shadow:inset 0 2px 0 var(--color-primary),inset 0 -2px 0 var(--color-primary)}
+.worklist tr.is-selected td:first-child{box-shadow:inset 0 2px 0 var(--color-primary),inset 0 -2px 0 var(--color-primary),inset 2px 0 0 var(--color-primary)}
+.worklist tr.is-selected td:last-child{box-shadow:inset 0 2px 0 var(--color-primary),inset 0 -2px 0 var(--color-primary),inset -2px 0 0 var(--color-primary)}
+.worklist tr:focus-visible{outline:3px solid var(--color-focus);outline-offset:-3px}
+.worklist tr.is-locked td{background:var(--color-surface);color:var(--color-text-muted)}
 .worklist tr.is-locked{cursor:not-allowed}
-.worklist tr:focus-visible td{outline:none;box-shadow:inset 0 0 0 2px var(--primary)}
-.id-cell{display:flex;gap:6px;align-items:center;font-weight:600}
-.unassigned{color:var(--muted);font-style:italic}
-.empty{padding:28px;text-align:center;color:var(--muted)}
+.worklist tr.is-dc td:first-child::before{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--status-marker-width);background:var(--status-dc)}
+.id-cell{display:flex;align-items:center;gap:var(--space-2);font-weight:var(--font-weight-medium)}
+.unassigned{color:var(--color-text-muted)}
+.empty{padding:var(--space-6);text-align:center;color:var(--color-text-muted)}
 
-/* report view */
-.rp-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-.rp-title{margin:0;font-size:18px}
-.rp-progress{margin-left:auto;color:var(--muted)}
-.rp-progress strong{color:var(--pending-ink);font-size:16px}
-.patient{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:10px}
-.patient dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 16px;margin:0}
-.patient dt{font-size:12px;color:var(--muted)}
-.patient dd{margin:0;font-weight:600}
-.neighbors{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:8px;margin-bottom:10px}
-.nb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 12px;border:1px solid var(--border);
-  border-radius:var(--radius);background:var(--surface);text-align:left;min-width:0}
-button.nb{cursor:pointer}
-button.nb:hover:not(:disabled){border-color:var(--border-strong);background:var(--surface-2)}
-button.nb:disabled{opacity:.55;cursor:default}
-.nb-cur{border:2px solid var(--primary);background:var(--primary-soft)}
-.nb-dir{font-size:12px;color:var(--muted);font-weight:600}
-.nb-line{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.nb-id{font-weight:700}
+/* 打報告畫面 */
+.rp-bar{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-3)}
+.rp-title{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)}
+.rp-progress{margin-left:auto;color:var(--color-text-muted)}
+.rp-progress strong{color:var(--status-pending);font-size:var(--font-size-lg)}
+.patient{padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3)}
+.patient dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--space-2) var(--space-4);margin:0}
+.patient dt{font-size:var(--font-size-sm);color:var(--color-text-muted)}
+.patient dd{margin:0;font-weight:var(--font-weight-medium)}
+.neighbors{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:var(--space-2);margin-bottom:var(--space-3)}
+.nb{display:flex;flex-direction:column;gap:var(--space-1);min-width:0;padding:var(--space-2) var(--space-3)}
+.nb-cur{background:var(--color-primary-soft);border-color:var(--color-primary);box-shadow:inset 0 0 0 1px var(--color-primary)}
+.nb-dir{font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-muted)}
+.nb-line{display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap}
+.nb-id{font-weight:var(--font-weight-bold)}
 .nb-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rp-main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(380px,1fr);gap:12px;align-items:start}
-.viewer{position:sticky;top:64px}
-.viewer-box{height:calc(100vh - 300px);min-height:420px;background:var(--img-bg);border-radius:var(--radius);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--img-ink);text-align:center;padding:16px}
-.viewer-label{font-size:22px;font-weight:700;color:#e4e7ec}
-.viewer-note{font-size:12px;opacity:.75}
-.report{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column}
-.report-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border)}
-.report-head h2{margin:0;font-size:16px}
-.report-body{padding:12px 16px;display:flex;flex-direction:column;gap:14px}
-.notice{padding:8px 12px;border-radius:6px;font-size:13px;border:1px solid}
-.notice.dc{background:var(--dc-bg);color:var(--dc-ink);border-color:var(--dc-bd)}
-.notice.lock{background:var(--cert-bg);color:var(--cert-ink);border-color:var(--cert-bd)}
-.his{border:1px dashed var(--border-strong);border-radius:6px;padding:8px 12px;background:var(--surface-2);font-size:13px}
-.his strong{display:block;margin-bottom:2px}
-.field label{display:block;font-weight:700;margin-bottom:4px}
-.phrases{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
-.chip{padding:3px 10px;border:1px solid var(--border-strong);border-radius:999px;background:#fff;font-size:12.5px;cursor:pointer}
-.chip:hover:not(:disabled){background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.rp-main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(380px,1fr);gap:var(--space-3);align-items:start}
+.viewer{position:sticky;top:calc(var(--control-height) + var(--space-4) + var(--space-3))}
+.viewer-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-2);height:calc(100vh - 300px);min-height:420px;
+  padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-image-bg);color:var(--color-image-text);text-align:center}
+.viewer-label{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold)}
+.viewer-note{font-size:var(--font-size-sm)}
+.report{display:flex;flex-direction:column}
+.report-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border)}
+.report-head h2{font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)}
+.report-body{display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-4)}
+.notice{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid;border-radius:var(--radius);font-size:var(--font-size-sm)}
+.notice.dc{color:var(--status-dc);background:var(--status-dc-bg);border-color:var(--status-dc-border)}
+.notice.lock{color:var(--status-certified);background:var(--status-certified-bg);border-color:var(--status-certified-border)}
+.his{padding:var(--space-2) var(--space-3);border:1px dashed var(--color-border-input);border-radius:var(--radius);background:var(--color-surface);font-size:var(--font-size-sm)}
+.his strong{display:block;font-weight:var(--font-weight-medium)}
+.field{display:flex;flex-direction:column;gap:var(--space-1)}
+.phrases{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+.chip{padding:0 var(--space-2);border:1px solid var(--color-border-input);border-radius:var(--radius-pill);background:var(--color-bg);
+  font-size:var(--font-size-sm);line-height:var(--line-height);cursor:pointer}
+.chip:hover:not(:disabled){background:var(--color-primary-soft);border-color:var(--color-primary);color:var(--color-primary)}
 .chip:disabled{opacity:.45;cursor:not-allowed}
-.no-phrase{font-size:12px;color:var(--muted);margin:0 0 6px}
-.field textarea{width:100%;min-height:88px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:6px;resize:vertical;
-  font-family:ui-monospace,"SF Mono",Consolas,"Microsoft JhengHei",monospace;font-size:13.5px}
-.field textarea[readonly]{background:var(--surface-2)}
-.actions{position:sticky;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;
-  padding:10px 16px;border-top:1px solid var(--border);background:var(--surface);border-radius:0 0 var(--radius) var(--radius)}
-.actions .grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.dirty{font-size:12px;color:var(--pending-ink);font-weight:600}
+.no-phrase{font-size:var(--font-size-sm);color:var(--color-text-muted)}
+.actions{position:sticky;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);flex-wrap:wrap;
+  padding:var(--space-3) var(--space-4);border-top:1px solid var(--color-border);background:var(--color-bg);border-radius:0 0 var(--radius-lg) var(--radius-lg)}
+.actions .grp{display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap}
+.dirty{font-size:var(--font-size-sm);color:var(--color-text-muted)}
 
-/* toast & overlay */
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;
-  background:#1c2330;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.2);transition:.2s;z-index:30;max-width:90vw}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.warn{background:var(--dc-ink)}
-.overlay{position:fixed;inset:0;background:rgba(20,25,35,.45);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px}
-.dialog{background:var(--surface);border-radius:12px;padding:24px 28px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)}
-.dialog h2{margin:0 0 8px;font-size:18px}
-.dialog p{margin:0 0 18px;color:var(--muted)}
+/* 提示與對話框 */
+.toast{position:fixed;left:50%;bottom:var(--space-6);z-index:30;max-width:90vw;padding:var(--space-2) var(--space-4);border-radius:var(--radius-lg);
+  background:var(--color-text);color:var(--color-bg);box-shadow:var(--shadow-overlay);transform:translate(-50%,var(--space-4));opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.warn{background:var(--color-danger)}
+.overlay{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:var(--space-4);background:var(--color-overlay)}
+.dialog{width:100%;max-width:420px;padding:var(--space-6);border-radius:var(--radius-lg);background:var(--color-bg);box-shadow:var(--shadow-overlay)}
+.dialog h2{margin-bottom:var(--space-2);font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)}
+.dialog p{margin-bottom:var(--space-4);color:var(--color-text-muted)}
 
 @media (max-width:1000px){
   .rp-main{grid-template-columns:1fr}
@@ -170,14 +242,13 @@ button.nb:disabled{opacity:.55;cursor:default}
 </head>
 <body>
 <header class="app-header">
-  <div class="brand"><span class="brand-mark" aria-hidden="true"></span>影像報告系統<span class="role-tag">醫師端</span></div>
+  <div class="brand">影像報告系統<span class="role-tag">醫師端</span></div>
   <div>登入：<strong>醫師甲</strong></div>
 </header>
 
 <main>
-  <!-- 工作清單 -->
   <section id="list-view" aria-label="醫師工作清單">
-    <section class="summary" aria-labelledby="summary-title">
+    <section class="card summary" aria-labelledby="summary-title">
       <div class="summary-total">
         <h2 id="summary-title" class="summary-label"></h2>
         <div><span id="summary-num" class="summary-num">0</span><span class="summary-unit">份</span></div>
@@ -185,30 +256,24 @@ button.nb:disabled{opacity:.55;cursor:default}
       <div id="summary-cats" class="summary-cats" role="group" aria-label="依檢查類別篩選"></div>
     </section>
 
-    <form id="filters" class="filters" onsubmit="return false" aria-label="搜尋條件">
-      <div class="f"><label for="f-from">檢查日期（起）</label><input type="date" id="f-from"></div>
-      <div class="f"><label for="f-to">檢查日期（迄）</label><input type="date" id="f-to"></div>
-      <div class="f"><label for="f-status">報告狀態</label><select id="f-status"></select></div>
-      <div class="f"><label for="f-cat">檢查類別</label><select id="f-cat"></select></div>
-      <div class="f"><label for="f-unit">開單單位</label><select id="f-unit"></select></div>
-      <div class="f"><label for="f-orderDr">開單醫師</label><select id="f-orderDr"></select></div>
-      <div class="f"><label for="f-rptDr">報告醫師</label><select id="f-rptDr"></select></div>
-      <div class="f f-wide"><label for="f-kw">單號／身分證字號</label><input type="search" id="f-kw" placeholder="輸入單號或身分證字號"></div>
-      <div class="f f-actions"><button type="button" id="f-reset" class="btn">重設條件</button></div>
+    <form id="filters" class="card filters" onsubmit="return false" aria-label="搜尋條件">
+      <div class="f"><label class="f-label" for="f-from">檢查日期（起）</label><input class="input" type="date" id="f-from"></div>
+      <div class="f"><label class="f-label" for="f-to">檢查日期（迄）</label><input class="input" type="date" id="f-to"></div>
+      <div class="f"><label class="f-label" for="f-status">報告狀態</label><select class="input" id="f-status"></select></div>
+      <div class="f"><label class="f-label" for="f-cat">檢查類別</label><select class="input" id="f-cat"></select></div>
+      <div class="f"><label class="f-label" for="f-unit">開單單位</label><select class="input" id="f-unit"></select></div>
+      <div class="f"><label class="f-label" for="f-orderDr">開單醫師</label><select class="input" id="f-orderDr"></select></div>
+      <div class="f"><label class="f-label" for="f-rptDr">報告醫師</label><select class="input" id="f-rptDr"></select></div>
+      <div class="f f-wide"><label class="f-label" for="f-kw">單號／身分證字號</label><input class="input" type="search" id="f-kw" placeholder="輸入單號或身分證字號"></div>
+      <div class="f"><button type="button" id="f-reset" class="btn">重設條件</button></div>
     </form>
 
     <div class="list-meta">
       <span id="list-count" class="muted"></span>
-      <span class="legend" aria-label="圖例">
-        <span class="badge st-pending">○ 未完成</span>
-        <span class="badge st-done">◐ 已完成</span>
-        <span class="badge st-cert">✓ 已認證</span>
-        <span class="badge dc">醫令已DC</span>
-        <span class="badge noimg">未照影像</span>
-      </span>
+      <span id="legend" class="legend" aria-label="圖例"></span>
     </div>
 
-    <div class="table-wrap">
+    <div class="card table-wrap">
       <table class="worklist">
         <thead id="thead"></thead>
         <tbody id="tbody"></tbody>
@@ -216,7 +281,6 @@ button.nb:disabled{opacity:.55;cursor:default}
     </div>
   </section>
 
-  <!-- 打報告畫面 -->
   <section id="report-view" aria-label="打報告畫面" hidden></section>
 </main>
 
@@ -226,7 +290,7 @@ button.nb:disabled{opacity:.55;cursor:default}
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="done-title">
     <h2 id="done-title">未完成報告已全部完成</h2>
     <p>目前清單中沒有其他未完成的報告。</p>
-    <button type="button" class="btn btn-primary" id="done-back">返回工作清單</button>
+    <button type="button" class="btn" id="done-back">返回工作清單</button>
   </div>
 </div>
 
@@ -266,8 +330,20 @@ const PHRASES = {
 };
 const STATUSES = ['未完成','已完成','已認證'];
 const ST_CLASS = {'未完成':'pending','已完成':'done','已認證':'cert'};
-const ST_ICON  = {'未完成':'○','已完成':'◐','已認證':'✓'};
 const LOGIN_DR = '醫師甲';
+
+/* 狀態圖示：內嵌 SVG（設計系統規定不使用文字符號） */
+const ICON_PATH = {
+  pending:'<circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/>',
+  done:'<circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor"/>',
+  cert:'<circle cx="8" cy="8" r="6.5" fill="currentColor"/><path d="M5 8.2l2 2 4-4.2" fill="none" stroke="var(--color-bg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  dc:'<circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.2 11.8l7.6-7.6" stroke="currentColor" stroke-width="1.8"/>',
+  noimg:'<rect x="2.5" y="3.5" width="11" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 14L14 2" stroke="currentColor" stroke-width="1.5"/>',
+  alert:'<circle cx="8" cy="8" r="6.5" fill="currentColor"/><path d="M8 4.5v4.2M8 11v.3" stroke="var(--color-bg)" stroke-width="1.8" stroke-linecap="round"/>',
+  lock:'<rect x="3.5" y="7" width="9" height="6.5" rx="1.2" fill="currentColor"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+};
+const icon = k => `<svg class="ic" viewBox="0 0 16 16" aria-hidden="true">${ICON_PATH[k]}</svg>`;
+const DC_LABEL = '醫令已DC';
 
 const COLS = [
   {k:'status',label:'報告狀態'},{k:'id',label:'單號'},{k:'date',label:'檢查日期'},{k:'time',label:'檢查時間'},
@@ -275,12 +351,15 @@ const COLS = [
   {k:'unit',label:'開單單位'},{k:'orderDr',label:'開單醫師'},{k:'rptDr',label:'報告醫師'},{k:'img',label:'影像'},
 ];
 
-const state = { sort:{k:'date',dir:1}, queue:[], currentId:null };
+const state = { sort:{k:'date',dir:1}, queue:[], currentId:null, selectedId:null };
 const $ = s => document.querySelector(s);
 const get = id => EXAMS.find(e => e.id === id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uniq = arr => [...new Set(arr)];
-const badge = e => `<span class="badge st-${ST_CLASS[e.status]}">${ST_ICON[e.status]} ${e.status}</span>`;
+const statusBadge = s => `<span class="badge st-${ST_CLASS[s]}">${icon(ST_CLASS[s])}${s}</span>`;
+const badge = e => statusBadge(e.status);
+const dcBadge = () => `<span class="badge dc">${icon('dc')}${DC_LABEL}</span>`;
+const noImgBadge = () => `<span class="badge neutral">${icon('noimg')}未照影像</span>`;
 const canOpen = e => e.img === '已照';
 
 /* 依放射師訪談：已DC 且未照 → 從清單移除；已DC 但已照 → 保留並標示 */
@@ -334,6 +413,9 @@ function sorted(list){
 }
 
 /* ===== 工作清單 ===== */
+function renderLegend(){
+  $('#legend').innerHTML = STATUSES.map(statusBadge).join('') + dcBadge() + noImgBadge();
+}
 function renderSummary(){
   const f = getFilters();
   const pending = EXAMS.filter(e => inList(e) && canOpen(e) && e.status === '未完成' && matchDr(e,f.rptDr));
@@ -358,16 +440,16 @@ function renderBody(){
   if(!rows.length){ $('#tbody').innerHTML = `<tr><td class="empty" colspan="${COLS.length}">沒有符合條件的檢查</td></tr>`; return; }
   $('#tbody').innerHTML = rows.map(e => {
     const open = canOpen(e), dc = e.order === '已DC';
-    const cls = [`st-${ST_CLASS[e.status]}`, dc?'is-dc':'', open?'is-open':'is-locked'].join(' ');
-    return `<tr class="${cls}" data-id="${e.id}" tabindex="${open?0:-1}" aria-label="${e.id} ${e.pt} ${e.name} ${e.status}${dc?' 醫令已DC':''}${open?'':' 未照影像'}">
+    const cls = [`st-${ST_CLASS[e.status]}`, dc?'is-dc':'', open?'is-open':'is-locked', e.id===state.selectedId?'is-selected':''].join(' ');
+    return `<tr class="${cls}" data-id="${e.id}" tabindex="${open?0:-1}" ${e.id===state.selectedId?'aria-selected="true"':''} aria-label="${e.id} ${e.pt} ${e.name} ${e.status}${dc?' '+DC_LABEL:''}${open?'':' 未照影像'}">
       <td>${badge(e)}</td>
-      <td><span class="id-cell">${e.id}${dc?'<span class="badge dc">醫令已DC</span>':''}</span></td>
+      <td><span class="id-cell">${e.id}${dc?dcBadge():''}</span></td>
       <td>${e.dt.slice(0,10)}</td><td>${e.dt.slice(11)}</td>
       <td>${esc(e.cat)}</td><td>${esc(e.name)}</td>
       <td>${esc(e.pt)}（${e.sex}／${e.age}）</td><td>${e.pid}</td>
       <td>${esc(e.unit)}</td><td>${esc(e.orderDr)}</td>
       <td>${e.rptDr==='未指派'?'<span class="unassigned">未指派</span>':esc(e.rptDr)}</td>
-      <td>${open?'已照':'<span class="badge noimg">未照影像</span>'}</td></tr>`;
+      <td>${open?'已照':noImgBadge()}</td></tr>`;
   }).join('');
 }
 function updateList(){ renderSummary(); renderHead(); renderBody(); }
@@ -382,7 +464,7 @@ function openReport(id){
   renderReport();
 }
 function nbInfo(e){
-  return `<span class="nb-line"><span class="nb-id">${e.id}</span>${badge(e)}${e.order==='已DC'?'<span class="badge dc">DC</span>':''}</span>
+  return `<span class="nb-line"><span class="nb-id">${e.id}</span>${badge(e)}${e.order==='已DC'?dcBadge():''}</span>
           <span class="nb-name">${esc(e.pt)}・${esc(e.name)}</span>`;
 }
 function renderReport(){
@@ -395,12 +477,12 @@ function renderReport(){
 
   $('#report-view').innerHTML = `
     <div class="rp-bar">
-      <button type="button" class="btn btn-ghost" id="rp-back">← 返回工作清單</button>
+      <button type="button" class="btn" id="rp-back">← 返回工作清單</button>
       <h1 class="rp-title" id="rp-title" tabindex="-1">打報告　<span class="muted">${e.id}</span></h1>
       <div class="rp-progress">第 ${i+1} / ${q.length} 筆・本清單未完成 <strong>${remaining}</strong> 份</div>
     </div>
 
-    <section class="patient" aria-label="個案資訊">
+    <section class="card patient" aria-label="個案資訊">
       <dl>
         <div><dt>姓名</dt><dd>${esc(e.pt)}</dd></div>
         <div><dt>性別／年齡</dt><dd>${e.sex}／${e.age}</dd></div>
@@ -414,11 +496,11 @@ function renderReport(){
       </dl>
     </section>
 
-    <nav class="neighbors" aria-label="上一筆、目前、下一筆">
-      <button type="button" class="nb" data-go="${i-1}" ${prev?'':'disabled'}><span class="nb-dir">← 上一筆</span>${prev?nbInfo(prev):'<span class="muted">已是第一筆</span>'}</button>
-      <div class="nb nb-cur" aria-current="true"><span class="nb-dir">目前</span>${nbInfo(e)}</div>
-      <button type="button" class="nb" data-go="${i+1}" ${next?'':'disabled'}><span class="nb-dir">下一筆 →</span>${next?nbInfo(next):'<span class="muted">已是最後一筆</span>'}</button>
-    </nav>
+    <section class="neighbors" aria-label="上一筆、目前、下一筆">
+      <div class="card nb"><span class="nb-dir">上一筆</span>${prev?nbInfo(prev):'<span class="muted">已是第一筆</span>'}</div>
+      <div class="card nb nb-cur" aria-current="true"><span class="nb-dir">目前</span>${nbInfo(e)}</div>
+      <div class="card nb"><span class="nb-dir">下一筆</span>${next?nbInfo(next):'<span class="muted">已是最後一筆</span>'}</div>
+    </section>
 
     <div class="rp-main">
       <section class="viewer" aria-label="影像顯示區">
@@ -429,20 +511,21 @@ function renderReport(){
         </div>
       </section>
 
-      <section class="report" aria-labelledby="tpl-title">
+      <section class="card report" aria-labelledby="tpl-title">
         <div class="report-head"><h2 id="tpl-title">${esc(tpl.title)}</h2>${badge(e)}</div>
         <div class="report-body">
-          ${dc ? '<div class="notice dc" role="note">醫令已 DC（檢查已完成照影像），請確認是否仍需撰寫報告。</div>' : ''}
-          ${locked ? '<div class="notice lock" role="note">此報告已認證，內容不可修改。</div>' : ''}
+          ${dc ? `<div class="notice dc" role="note">${icon('dc')}${DC_LABEL}（檢查已照影像），請確認是否仍需撰寫報告。</div>` : ''}
+          ${locked ? `<div class="notice lock" role="note">${icon('lock')}此報告已認證，內容不可修改。</div>` : ''}
           ${e.cat === '門診放射' ? '<div class="his"><strong>HIS 診斷、S、O</strong><span class="muted">（示意位置，雛型未串接 HIS）</span></div>' : ''}
           ${tpl.fields.map(f => `
             <div class="field">
-              <label for="fld-${f}">${f}</label>
+              <label class="field-label" for="fld-${f}">${f}</label>
               ${(phr[f]||[]).length
                 ? `<div class="phrases" role="group" aria-label="${f} 片語">${phr[f].map(p => `<button type="button" class="chip" data-field="${f}" data-phrase="${esc(p)}" ${locked?'disabled':''}>＋ ${esc(p)}</button>`).join('')}</div>`
                 : '<p class="no-phrase">此範本尚未設定片語</p>'}
-              <textarea id="fld-${f}" data-field="${f}" ${locked?'readonly':''}>${esc(vals[f]||'')}</textarea>
+              <textarea class="input" id="fld-${f}" data-field="${f}" ${locked?'readonly':''}>${esc(vals[f]||'')}</textarea>
             </div>`).join('')}
+          <p class="field-error" id="fld-error" hidden>${icon('alert')}請至少填寫一個欄位再儲存</p>
         </div>
         <div class="actions">
           <div class="grp">
@@ -452,7 +535,7 @@ function renderReport(){
           <div class="grp">
             <span id="dirty" class="dirty" ${e.draft?'':'hidden'}>● 尚未儲存</span>
             <button type="button" class="btn btn-primary" id="act-save" ${locked?'disabled':''}>儲存並跳下一筆 <kbd>Ctrl+S</kbd></button>
-            <button type="button" class="btn btn-cert" id="act-cert" ${locked?'disabled':''}>認證並跳下一筆</button>
+            <button type="button" class="btn" id="act-cert" ${locked?'disabled':''}>認證並跳下一筆</button>
           </div>
         </div>
       </section>
@@ -464,12 +547,20 @@ function nextUnfinished(fromId){
   const q = state.queue, i = q.indexOf(fromId);
   return [...q.slice(i+1), ...q.slice(0,i)].find(id => get(id).status === '未完成' && canOpen(get(id)));
 }
+function setFieldError(on){
+  document.querySelectorAll('#report-view textarea').forEach(t => {
+    if(on){ t.setAttribute('aria-invalid','true'); t.setAttribute('aria-describedby','fld-error'); }
+    else { t.removeAttribute('aria-invalid'); t.removeAttribute('aria-describedby'); }
+  });
+  const msg = $('#fld-error'); if(msg) msg.hidden = !on;
+}
 function commit(kind){
   const e = get(state.currentId);
   if(e.status === '已認證') return;
   const vals = {};
   document.querySelectorAll('#report-view textarea').forEach(t => vals[t.dataset.field] = t.value.trim());
   if(Object.values(vals).every(v => !v)){
+    setFieldError(true);
     toast('請至少填寫一個欄位再儲存', true);
     $('#report-view textarea')?.focus();
     return;
@@ -493,6 +584,7 @@ function backToList(){
   $('#done').hidden = true;
   $('#report-view').hidden = true;
   $('#list-view').hidden = false;
+  state.selectedId = state.currentId;
   updateList();
   document.querySelector(`#tbody tr[data-id="${state.currentId}"]`)?.focus();
 }
@@ -552,6 +644,7 @@ $('#report-view').addEventListener('input', ev => {
   e.draft = e.draft || {...(e.report || {})};
   e.draft[ev.target.dataset.field] = ev.target.value;
   $('#dirty').hidden = false;
+  setFieldError(false);
 });
 document.addEventListener('keydown', ev => {
   if(!$('#done').hidden && ev.key === 'Escape'){ backToList(); return; }
@@ -562,6 +655,7 @@ document.addEventListener('keydown', ev => {
 $('#done-back').addEventListener('click', backToList);
 
 initFilters();
+renderLegend();
 updateList();
 </script>
 </body>
