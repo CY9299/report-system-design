@@ -8,22 +8,24 @@
 /* 影像報告撰寫系統｜設計 tokens
    以起始範本為基礎整理，規則說明見 design-system.md。
    標示「新增」的變數是範本沒有、由雛型盤點整理出來的。
-   報告狀態色採用 B 組「色覺友善色相」（2026-11-03 決定，取代先前的 C 組）。 */
+   報告狀態色採用 B 組「色覺友善色相」（2026-11-03 決定）。
+   介面風格：粉色主色＋深色粗框＋錯位實心陰影（2026-11-04 改版）。 */
 
 :root {
   /* ── 色彩：基本 ── */
-  --color-primary: #1f5fa8;          /* 主要按鈕、連結、焦點框 */
-  --color-primary-hover: #194d88;    /* 新增：主要按鈕滑過 */
-  --color-primary-soft: #e8eff8;     /* 新增：選取狀態底色（分項晶片、目前這筆） */
+  --color-primary: #e1bfce;          /* 主要按鈕底色、身分標籤；只能搭配深色文字（--color-text 8.8:1），不可用白字 */
+  --color-primary-hover: #d4aabf;    /* 新增：主要按鈕滑過 */
+  --color-primary-soft: #f6ebf0;     /* 新增：選取狀態底色（目前這筆、片語滑過） */
+  --color-primary-ink: #7a3d5c;      /* 新增：主色系文字、表格列選取框線（對白底 7.9:1） */
   --color-bg: #ffffff;               /* 卡片、表格、輸入框底色 */
-  --color-surface: #f5f7fa;          /* 頁面底色、表頭、次要區塊 */
+  --color-surface: #f3f3f3;          /* 頁面底色、表頭、次要區塊 */
   --color-text: #1f2933;             /* 主要文字 */
   --color-text-muted: #5f6b7a;       /* 次要文字、欄位標籤 */
   --color-border: #d5dbe3;           /* 卡片與表格分隔線（裝飾用） */
-  --color-border-input: #7b8594;     /* 新增：輸入框、次要按鈕框線（對白底 3.7:1） */
+  --color-border-input: #7b8594;     /* 新增：輸入框、勾選框、提示框框線（對白底 3.7:1） */
   --color-danger: #b42318;           /* 新增：錯誤訊息、危險操作（不與醫令已 DC 共用） */
   --color-danger-bg: #fdeceb;        /* 新增：錯誤訊息底色 */
-  --color-focus: #1f5fa8;            /* 新增：鍵盤焦點框 */
+  --color-focus: #7a3d5c;            /* 新增：鍵盤焦點框 */
   --color-image-bg: #2f343c;         /* 新增：影像顯示區底色 */
   --color-image-text: #c8cdd5;       /* 新增：影像顯示區文字 */
   --color-overlay: rgba(20, 25, 35, .45); /* 新增：對話框遮罩 */
@@ -47,8 +49,8 @@
   --font-size-sm: 13px;        /* 欄位標籤、狀態標籤、片語、輔助說明 */
   --font-size-md: 15px;        /* 內文、表格、輸入框、按鈕 */
   --font-size-lg: 18px;        /* 區塊標題、頁面標題 */
-  --font-size-xl: 22px;        /* 分項數量 */
-  --font-size-display: 40px;   /* 新增：未完成總數（全畫面只用一處） */
+  --font-size-xl: 22px;        /* 影像顯示區標題 */
+  --font-size-display: 40px;   /* 新增：目前未使用（保留） */
   --font-weight-regular: 400;  /* 新增 */
   --font-weight-medium: 600;   /* 新增：標籤、表頭、按鈕 */
   --font-weight-bold: 700;     /* 新增：標題、數字 */
@@ -68,9 +70,15 @@
   --status-marker-width: 4px;  /* 醫令已 DC 左側標記寬度 */
 
   /* ── 圓角 ── */
-  --radius: 6px;          /* 按鈕、輸入框 */
+  --radius: 6px;          /* 輸入框、提示框（按鈕改用 --radius-pill） */
   --radius-lg: 8px;       /* 新增：卡片、影像區、對話框 */
-  --radius-pill: 999px;   /* 新增：狀態標籤、片語 */
+  --radius-pill: 999px;   /* 新增：按鈕、狀態標籤、片語 */
+
+  /* ── 框線與按鈕風格（新增，2026-11-04） ── */
+  --border-width-strong: 2px;                       /* 按鈕、選取列、目前這筆的粗框 */
+  --shadow-offset: 3px 3px 0 var(--color-text);     /* 主要按鈕：錯位實心陰影 */
+  --shadow-offset-hover: 1px 1px 0 var(--color-text); /* 滑過時陰影縮短，按鈕往右下移 */
+  --letter-spacing-button: .06em;                   /* 按鈕文字字距 */
 
   /* ── 陰影（新增） ── */
   --shadow-overlay: 0 12px 40px rgba(0, 0, 0, .25); /* 對話框、提示訊息 */
@@ -90,23 +98,33 @@ h1,h2,p{margin:0}
 /* 版面 */
 .app-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);
   min-height:calc(var(--control-height) + var(--space-4));padding:0 var(--space-4);background:var(--color-bg);border-bottom:1px solid var(--color-border)}
-.brand{display:flex;align-items:center;gap:var(--space-2);font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)}
-.role-tag{padding:0 var(--space-2);border-radius:var(--radius-pill);background:var(--color-primary-soft);color:var(--color-primary);
+.brand{display:flex;align-items:center;gap:var(--space-2);white-space:nowrap;font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)}
+.role-tag{white-space:nowrap;padding:0 var(--space-2);border:var(--border-width-strong) solid var(--color-text);border-radius:var(--radius-pill);background:var(--color-primary);color:var(--color-text);
   font-size:var(--font-size-sm);font-weight:var(--font-weight-medium)}
+.login-switch{display:flex;align-items:center;gap:var(--space-2)}
+@media (max-width:560px){.app-header{flex-wrap:wrap;padding:var(--space-2) var(--space-4)}}
 main{max-width:1480px;margin:0 auto;padding:var(--space-4)}
 .card{background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
 
 /* 圖示 */
 .ic{width:14px;height:14px;flex:none}
 
-/* 按鈕：主要／次要 */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);height:var(--control-height);padding:0 var(--space-3);
-  border:1px solid var(--color-border-input);border-radius:var(--radius);background:var(--color-bg);color:var(--color-text);
-  font-size:var(--font-size-md);font-weight:var(--font-weight-medium);white-space:nowrap;cursor:pointer}
+/* 按鈕：主要／次要／危險（膠囊形、深色粗框；主要按鈕有錯位實心陰影） */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);height:var(--control-height);padding:0 var(--space-4);
+  border:var(--border-width-strong) solid var(--color-text);border-radius:var(--radius-pill);background:var(--color-bg);color:var(--color-text);
+  font-size:var(--font-size-md);font-weight:var(--font-weight-bold);letter-spacing:var(--letter-spacing-button);white-space:nowrap;cursor:pointer;
+  transition:transform .08s ease, box-shadow .08s ease, background-color .08s ease}
 .btn:hover:not(:disabled){background:var(--color-surface)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
-.btn-primary{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-bg)}
-.btn-primary:hover:not(:disabled){background:var(--color-primary-hover);border-color:var(--color-primary-hover)}
+.btn-primary,.btn-danger.is-solid{box-shadow:var(--shadow-offset)}
+.btn-primary{background:var(--color-primary)}
+.btn-primary:hover:not(:disabled){background:var(--color-primary-hover)}
+.btn-primary:hover:not(:disabled),.btn-danger.is-solid:hover:not(:disabled){transform:translate(2px,2px);box-shadow:var(--shadow-offset-hover)}
+.btn-primary:active:not(:disabled),.btn-danger.is-solid:active:not(:disabled){transform:translate(3px,3px);box-shadow:none}
+.btn-primary:disabled,.btn-danger.is-solid:disabled{box-shadow:none}
+.btn-danger{border-color:var(--color-danger);color:var(--color-danger)}
+.btn-danger:hover:not(:disabled){background:var(--color-danger-bg)}
+.btn-danger.is-solid,.btn-danger.is-solid:hover:not(:disabled){background:var(--color-danger);border-color:var(--color-text);color:var(--color-bg)}
 kbd{font-family:var(--font-family-mono);font-size:var(--font-size-sm);line-height:var(--line-height-tight);padding:0 var(--space-1);
   border:1px solid currentColor;border-radius:var(--radius);opacity:.85}
 
@@ -126,15 +144,20 @@ kbd{font-family:var(--font-family-mono);font-size:var(--font-size-sm);line-heigh
 .summary-label{font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-muted)}
 .summary-num{font-size:var(--font-size-display);font-weight:var(--font-weight-bold);line-height:var(--line-height-tight);color:var(--status-pending)}
 .summary-unit{margin-left:var(--space-1);color:var(--color-text-muted)}
+.summary-hint{margin:0 0 var(--space-3)}
+.summary-hint strong{color:var(--status-pending)}
+.summary-extra{align-self:center;margin:0;color:var(--color-text-muted)}
 .summary-cats{display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;flex:1}
 .cat-chip{display:flex;flex-direction:column;align-items:flex-start;min-width:120px;padding:var(--space-2) var(--space-3);
-  border:1px solid var(--color-border-input);border-radius:var(--radius);background:var(--color-bg);text-align:left;cursor:pointer}
+  border:var(--border-width-strong) solid var(--color-text);border-radius:var(--radius);background:var(--color-bg);text-align:left;cursor:pointer;
+  transition:transform .08s ease, box-shadow .08s ease}
 .cat-chip:hover{background:var(--color-surface)}
 .cat-chip .n{font-size:var(--font-size-xl);font-weight:var(--font-weight-bold);line-height:var(--line-height-tight)}
 .cat-chip .t{font-size:var(--font-size-sm);color:var(--color-text-muted)}
 .cat-chip.has .n{color:var(--status-pending)}
 .cat-chip.zero .n{color:var(--color-text-muted)}
-.cat-chip[aria-pressed="true"]{background:var(--color-primary-soft);border-color:var(--color-primary);box-shadow:inset 0 0 0 1px var(--color-primary)}
+.cat-chip[aria-pressed="true"]{background:var(--color-primary);box-shadow:var(--shadow-offset)}
+.cat-chip[aria-pressed="true"] .t,.cat-chip[aria-pressed="true"].zero .n{color:var(--color-text)}
 
 /* 表單欄位 */
 .filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--space-3);align-items:end;padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3)}
@@ -144,7 +167,7 @@ kbd{font-family:var(--font-family-mono);font-size:var(--font-size-sm);line-heigh
 .input{height:var(--control-height);padding:0 var(--space-2);border:1px solid var(--color-border-input);border-radius:var(--radius);
   background:var(--color-bg);font-size:var(--font-size-md)}
 textarea.input{display:block;width:100%;height:auto;min-height:96px;padding:var(--space-2);resize:vertical;line-height:var(--line-height)}
-.input:focus{border-color:var(--color-primary);outline:3px solid var(--color-focus);outline-offset:2px}
+.input:focus{border-color:var(--color-primary-ink);outline:3px solid var(--color-focus);outline-offset:2px}
 .input[readonly]{background:var(--color-surface)}
 .input[aria-invalid="true"]{border-color:var(--color-danger)}
 .field-error{display:flex;align-items:center;gap:var(--space-1);color:var(--color-danger);font-size:var(--font-size-sm);font-weight:var(--font-weight-medium)}
@@ -153,10 +176,10 @@ textarea.input{display:block;width:100%;height:auto;min-height:96px;padding:var(
 .list-meta{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-2)}
 .legend{display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center}
 .table-wrap{overflow-x:auto}
-table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
+table.worklist{width:100%;border-collapse:collapse;min-width:1320px}
 .worklist th{position:sticky;top:0;padding:0;background:var(--color-surface);border-bottom:1px solid var(--color-border);text-align:left}
 .worklist th button{display:flex;align-items:center;gap:var(--space-1);width:100%;height:var(--row-height);padding:0 var(--space-3);border:0;background:transparent;
-  font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);text-align:left;cursor:pointer}
+  font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);text-align:left;white-space:nowrap;cursor:pointer}
 .worklist th button:hover{background:var(--color-border)}
 .worklist th .arrow{min-width:10px;color:var(--color-text-muted)}
 .worklist td{height:var(--row-height);padding:0 var(--space-3);border-bottom:1px solid var(--color-border);background:var(--color-bg);white-space:nowrap}
@@ -166,9 +189,9 @@ table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
 .worklist tr.st-cert td{background:var(--status-certified-bg)}
 .worklist tr.is-open{cursor:pointer}
 .worklist tr.is-open:hover td{box-shadow:inset 0 1px 0 var(--color-border-input),inset 0 -1px 0 var(--color-border-input)}
-.worklist tr.is-selected td{box-shadow:inset 0 2px 0 var(--color-primary),inset 0 -2px 0 var(--color-primary)}
-.worklist tr.is-selected td:first-child{box-shadow:inset 0 2px 0 var(--color-primary),inset 0 -2px 0 var(--color-primary),inset 2px 0 0 var(--color-primary)}
-.worklist tr.is-selected td:last-child{box-shadow:inset 0 2px 0 var(--color-primary),inset 0 -2px 0 var(--color-primary),inset -2px 0 0 var(--color-primary)}
+.worklist tr.is-selected td{box-shadow:inset 0 var(--border-width-strong) 0 var(--color-primary-ink),inset 0 calc(-1 * var(--border-width-strong)) 0 var(--color-primary-ink)}
+.worklist tr.is-selected td:first-child{box-shadow:inset 0 var(--border-width-strong) 0 var(--color-primary-ink),inset 0 calc(-1 * var(--border-width-strong)) 0 var(--color-primary-ink),inset var(--border-width-strong) 0 0 var(--color-primary-ink)}
+.worklist tr.is-selected td:last-child{box-shadow:inset 0 var(--border-width-strong) 0 var(--color-primary-ink),inset 0 calc(-1 * var(--border-width-strong)) 0 var(--color-primary-ink),inset calc(-1 * var(--border-width-strong)) 0 0 var(--color-primary-ink)}
 .worklist tr:focus-visible{outline:3px solid var(--color-focus);outline-offset:-3px}
 .worklist tr.is-locked td{background:var(--color-surface);color:var(--color-text-muted)}
 .worklist tr.is-locked{cursor:not-allowed}
@@ -185,10 +208,11 @@ table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
 .patient{padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3)}
 .patient dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--space-2) var(--space-4);margin:0}
 .patient dt{font-size:var(--font-size-sm);color:var(--color-text-muted)}
+.patient .span2{grid-column:span 2}
 .patient dd{margin:0;font-weight:var(--font-weight-medium)}
 .neighbors{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:var(--space-2);margin-bottom:var(--space-3)}
 .nb{display:flex;flex-direction:column;gap:var(--space-1);min-width:0;padding:var(--space-2) var(--space-3)}
-.nb-cur{background:var(--color-primary-soft);border-color:var(--color-primary);box-shadow:inset 0 0 0 1px var(--color-primary)}
+.nb-cur{background:var(--color-primary-soft);border:var(--border-width-strong) solid var(--color-text)}
 .nb-dir{font-size:var(--font-size-sm);font-weight:var(--font-weight-medium);color:var(--color-text-muted)}
 .nb-line{display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap}
 .nb-id{font-weight:var(--font-weight-bold)}
@@ -205,6 +229,11 @@ table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
 .report-body{display:flex;flex-direction:column;gap:var(--space-4);padding:var(--space-4)}
 .notice{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);border:1px solid;border-radius:var(--radius);font-size:var(--font-size-sm)}
 .notice.dc{color:var(--status-dc);background:var(--status-dc-bg);border-color:var(--status-dc-border)}
+.notice.info{color:var(--color-text);background:var(--color-surface);border-color:var(--color-border-input)}
+.compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3)}
+.cmp-col{display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-3)}
+.cmp-col .cmp-top{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)}
+.cmp-col p{margin:0;white-space:pre-wrap}
 .notice.lock{color:var(--status-certified);background:var(--status-certified-bg);border-color:var(--status-certified-border)}
 .his{padding:var(--space-2) var(--space-3);border:1px dashed var(--color-border-input);border-radius:var(--radius);background:var(--color-surface);font-size:var(--font-size-sm)}
 .his strong{display:block;font-weight:var(--font-weight-medium)}
@@ -212,7 +241,7 @@ table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
 .phrases{display:flex;flex-wrap:wrap;gap:var(--space-2)}
 .chip{padding:0 var(--space-2);border:1px solid var(--color-border-input);border-radius:var(--radius-pill);background:var(--color-bg);
   font-size:var(--font-size-sm);line-height:var(--line-height);cursor:pointer}
-.chip:hover:not(:disabled){background:var(--color-primary-soft);border-color:var(--color-primary);color:var(--color-primary)}
+.chip:hover:not(:disabled){background:var(--color-primary-soft);border-color:var(--color-primary-ink);color:var(--color-primary-ink)}
 .chip:disabled{opacity:.45;cursor:not-allowed}
 .no-phrase{font-size:var(--font-size-sm);color:var(--color-text-muted)}
 .actions{position:sticky;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);flex-wrap:wrap;
@@ -222,13 +251,20 @@ table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
 
 /* 提示與對話框 */
 .toast{position:fixed;left:50%;bottom:var(--space-6);z-index:30;max-width:90vw;padding:var(--space-2) var(--space-4);border-radius:var(--radius-lg);
-  background:var(--color-text);color:var(--color-bg);box-shadow:var(--shadow-overlay);transform:translate(-50%,var(--space-4));opacity:0;pointer-events:none;transition:.2s}
+  background:var(--color-text);color:var(--color-bg);box-shadow:var(--shadow-overlay);transform:translate(-50%,var(--space-4));opacity:0;pointer-events:none;transition:opacity .2s, transform .2s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .toast.warn{background:var(--color-danger)}
 .overlay{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:var(--space-4);background:var(--color-overlay)}
 .dialog{width:100%;max-width:420px;padding:var(--space-6);border-radius:var(--radius-lg);background:var(--color-bg);box-shadow:var(--shadow-overlay)}
 .dialog h2{margin-bottom:var(--space-2);font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)}
 .dialog p{margin-bottom:var(--space-4);color:var(--color-text-muted)}
+.bulk{display:flex;align-items:flex-end;gap:var(--space-3);flex-wrap:wrap;padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3)}
+.bulk-count{align-self:center;font-weight:var(--font-weight-medium)}
+.bulk .f{min-width:240px}
+.pick-cell{width:44px}
+.pick{width:18px;height:18px;accent-color:var(--color-primary-ink);cursor:pointer}
+.pick:disabled{cursor:not-allowed}
+.dialog-actions{display:flex;justify-content:flex-end;gap:var(--space-2);flex-wrap:wrap}
 
 @media (max-width:1000px){
   .rp-main{grid-template-columns:1fr}
@@ -242,19 +278,16 @@ table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
 </head>
 <body>
 <header class="app-header">
-  <div class="brand">影像報告系統<span class="role-tag">醫師端</span></div>
-  <div>登入：<strong>醫師甲</strong></div>
+  <div class="brand">影像報告系統<span class="role-tag" id="role-tag">醫師</span></div>
+  <div class="login-switch">
+    <label class="f-label" for="login-dr">登入身分（雛型測試用）</label>
+    <select class="input" id="login-dr"></select>
+  </div>
 </header>
 
 <main>
-  <section id="list-view" aria-label="醫師工作清單">
-    <section class="card summary" aria-labelledby="summary-title">
-      <div class="summary-total">
-        <h2 id="summary-title" class="summary-label"></h2>
-        <div><span id="summary-num" class="summary-num">0</span><span class="summary-unit">份</span></div>
-      </div>
-      <div id="summary-cats" class="summary-cats" role="group" aria-label="依檢查類別篩選"></div>
-    </section>
+  <section id="list-view" aria-label="工作清單（醫師與放射師共用）">
+    <p id="summary" class="notice info summary-hint" role="status" aria-live="polite"></p>
 
     <form id="filters" class="card filters" onsubmit="return false" aria-label="搜尋條件">
       <div class="f"><label class="f-label" for="f-from">檢查日期（起）</label><input class="input" type="date" id="f-from"></div>
@@ -264,9 +297,29 @@ table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
       <div class="f"><label class="f-label" for="f-unit">開單單位</label><select class="input" id="f-unit"></select></div>
       <div class="f"><label class="f-label" for="f-orderDr">開單醫師</label><select class="input" id="f-orderDr"></select></div>
       <div class="f"><label class="f-label" for="f-rptDr">報告醫師</label><select class="input" id="f-rptDr"></select></div>
+      <div class="f"><label class="f-label" for="f-img">影像</label><select class="input" id="f-img"></select></div>
       <div class="f f-wide"><label class="f-label" for="f-kw">單號／身分證字號</label><input class="input" type="search" id="f-kw" placeholder="輸入單號或身分證字號"></div>
       <div class="f"><button type="button" id="f-reset" class="btn">重設條件</button></div>
     </form>
+
+    <section class="card bulk" aria-label="指派報告醫師">
+      <span id="r-picked" class="bulk-count" aria-live="polite">已選取 0 筆</span>
+      <div class="f">
+        <label class="f-label" for="r-role">指派為</label>
+        <select class="input" id="r-role">
+          <option value="first">報告醫師（乳攝為第一判讀）</option>
+          <option value="second">第二判讀醫師（僅健檢乳攝）</option>
+        </select>
+      </div>
+      <div class="f">
+        <label class="f-label" for="r-assign">醫師（可輸入搜尋）</label>
+        <input class="input" id="r-assign" list="r-doc-list" autocomplete="off" placeholder="輸入醫師名稱">
+        <datalist id="r-doc-list"></datalist>
+        <p class="field-error" id="r-assign-err" hidden></p>
+      </div>
+      <button type="button" class="btn btn-primary" id="r-assign-go" disabled>指派給選取的檢查</button>
+      <button type="button" class="btn" id="r-clear" disabled>取消選取</button>
+    </section>
 
     <div class="list-meta">
       <span id="list-count" class="muted"></span>
@@ -282,9 +335,21 @@ table.worklist{width:100%;border-collapse:collapse;min-width:1120px}
   </section>
 
   <section id="report-view" aria-label="打報告畫面" hidden></section>
+
 </main>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="confirm" class="overlay" hidden>
+  <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-desc">
+    <h2 id="confirm-title">取消認證</h2>
+    <p id="confirm-desc"></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="confirm-no">返回</button>
+      <button type="button" class="btn btn-danger is-solid" id="confirm-yes">取消認證</button>
+    </div>
+  </div>
+</div>
 
 <div id="done" class="overlay" hidden>
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="done-title">
@@ -330,7 +395,11 @@ const PHRASES = {
 };
 const STATUSES = ['未完成','已完成','已認證'];
 const ST_CLASS = {'未完成':'pending','已完成':'done','已認證':'cert'};
-const LOGIN_DR = '醫師甲';
+/* 可登入的醫師：取自模擬資料中的報告醫師 */
+/* 醫師壬為虛構測試醫師：雙人判讀不一致時需要第三位醫師裁決，模擬資料只有兩位報告醫師 */
+const DOCTORS = [...[...new Set(EXAMS.map(e => e.rptDr))].filter(d => d !== '未指派'), '醫師壬'];
+let viewRole = 'doctor';
+let loginDr = '醫師甲';
 
 /* 狀態圖示：內嵌 SVG（設計系統規定不使用文字符號） */
 const ICON_PATH = {
@@ -340,15 +409,17 @@ const ICON_PATH = {
   dc:'<circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.2 11.8l7.6-7.6" stroke="currentColor" stroke-width="1.8"/>',
   noimg:'<rect x="2.5" y="3.5" width="11" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 14L14 2" stroke="currentColor" stroke-width="1.5"/>',
   alert:'<circle cx="8" cy="8" r="6.5" fill="currentColor"/><path d="M8 4.5v4.2M8 11v.3" stroke="var(--color-bg)" stroke-width="1.8" stroke-linecap="round"/>',
+  pair:'<circle cx="5.5" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="10.5" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/>',
   lock:'<rect x="3.5" y="7" width="9" height="6.5" rx="1.2" fill="currentColor"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7" fill="none" stroke="currentColor" stroke-width="1.6"/>',
 };
 const icon = k => `<svg class="ic" viewBox="0 0 16 16" aria-hidden="true">${ICON_PATH[k]}</svg>`;
 const DC_LABEL = '醫令已DC';
 
+/* 變數六（全面調整）：醫師與放射師共用同一個工作清單，欄位、篩選、按鈕完全相同 */
 const COLS = [
-  {k:'status',label:'報告狀態'},{k:'id',label:'單號'},{k:'date',label:'檢查日期'},{k:'time',label:'檢查時間'},
-  {k:'cat',label:'檢查類別'},{k:'name',label:'檢查名稱'},{k:'pt',label:'病人（性別／年齡）'},{k:'pid',label:'身分證字號'},
-  {k:'unit',label:'開單單位'},{k:'orderDr',label:'開單醫師'},{k:'rptDr',label:'報告醫師'},{k:'img',label:'影像'},
+  {k:'pick',label:''},{k:'status',label:'報告狀態'},{k:'progress',label:'目前進度'},{k:'id',label:'單號'},{k:'date',label:'檢查日期'},{k:'time',label:'檢查時間'},
+  {k:'cat',label:'檢查類別'},{k:'name',label:'檢查名稱'},{k:'tpl',label:'報告格式'},{k:'pt',label:'病人（性別／年齡）'},{k:'pid',label:'身分證字號'},
+  {k:'unit',label:'開單單位'},{k:'orderDr',label:'開單醫師'},{k:'rptDr',label:'報告醫師'},{k:'img',label:'影像'},{k:'act',label:'操作'},
 ];
 
 const state = { sort:{k:'date',dir:1}, queue:[], currentId:null, selectedId:null };
@@ -357,10 +428,77 @@ const get = id => EXAMS.find(e => e.id === id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uniq = arr => [...new Set(arr)];
 const statusBadge = s => `<span class="badge st-${ST_CLASS[s]}">${icon(ST_CLASS[s])}${s}</span>`;
-const badge = e => statusBadge(e.status);
+const badge = e => statusBadge(st(e));
 const dcBadge = () => `<span class="badge dc">${icon('dc')}${DC_LABEL}</span>`;
 const noImgBadge = () => `<span class="badge neutral">${icon('noimg')}未照影像</span>`;
 const canOpen = e => e.img === '已照';
+
+/* 目前進度：用一句話說明這筆卡在哪一關（走查任務 3、4） */
+function progress(e){
+  const noImg = e.img !== '已照', noDr = e.rptDr === '未指派';
+  if(noImg && noDr) return '等待取回影像、尚未指派報告醫師';
+  if(noImg) return '等待取回影像';
+  if(noDr) return '尚未指派報告醫師';
+  if(isDouble(e)) return progressDouble(e);
+  if(e.status === '未完成') return e.order === '已DC' ? `醫令已DC，${e.rptDr}尚未撰寫` : `等待${e.rptDr}撰寫`;
+  if(e.status === '已完成') return `已儲存，待${e.rptDr}認證`;
+  return '報告已認證';
+}
+
+/* ===== 健檢乳攝雙人判讀（設計變數二，部分調整） =====
+   最小可行範圍：乳攝可指派兩位判讀醫師、BI-RADS 固定選項、系統自動比對；
+   不一致時「目前進度」顯示待裁決，報告狀態維持三種；裁決沿用打報告畫面，並排顯示兩份判讀。
+   【暫定】兩位判讀以外的任一醫師可在打報告畫面裁決，裁決者即認證醫師；一致時由第一判讀醫師認證。 */
+const DOUBLE = '健檢乳攝';
+const BIRADS = ['0','1','2','3','4','5','6'];
+const isDouble = e => e.cat === DOUBLE;
+function readOf(e, dr){ e.reads = e.reads || {}; return e.reads[dr] || (e.reads[dr] = {fields:{}, birads:'', saved:false}); }
+const hasDr = d => d && d !== '未指派';
+function bothSaved(e){ return hasDr(e.rptDr) && hasDr(e.second) && readOf(e,e.rptDr).saved && readOf(e,e.second).saved; }
+function agreed(e){ return bothSaved(e) && readOf(e,e.rptDr).birads === readOf(e,e.second).birads; }
+function disagreed(e){ return bothSaved(e) && !agreed(e); }
+function arbitrated(e){ return disagreed(e) && !!(e.arb && e.arb.saved); }
+function certifier(e){ return isDouble(e) && disagreed(e) ? e.arbiter : e.rptDr; }
+function syncDouble(e){ if(e.status !== '已認證') e.status = (agreed(e) || arbitrated(e)) ? '已完成' : '未完成'; }
+function reopenDouble(e){
+  e.status = '未完成';
+  if(disagreed(e)){ if(e.arb) e.arb.saved = false; } else if(hasDr(e.rptDr)) readOf(e,e.rptDr).saved = false;
+}
+function roleOf(e, dr){
+  if(viewRole === 'rad') return null;
+  if(!isDouble(e)) return e.rptDr === dr ? 'report' : null;
+  if(e.rptDr === dr) return 'first';
+  if(e.second === dr) return 'second';
+  if(disagreed(e) && hasDr(dr) && (!hasDr(e.arbiter) || e.arbiter === dr)) return 'arbiter';
+  return null;
+}
+const involved = (e, dr) => isDouble(e) ? (e.rptDr === dr || e.second === dr || e.arbiter === dr) : e.rptDr === dr;
+/* 醫師看到的是「自己這一份工作」的狀態；放射師看到整體狀態 */
+function st(e){
+  if(viewRole === 'rad' || !isDouble(e) || e.status === '已認證') return e.status;
+  const r = roleOf(e, loginDr);
+  if(r === 'first' || r === 'second'){
+    return readOf(e, loginDr).saved ? '已完成' : '未完成';
+  }
+  if(r === 'arbiter') return (e.arb && e.arb.saved) ? '已完成' : '未完成';
+  return e.status;
+}
+function progressDouble(e){
+  if(e.status === '已認證') return '報告已認證';
+  const a = readOf(e, e.rptDr).saved;
+  if(!hasDr(e.second)) return a ? `${e.rptDr}已判讀，尚未指派第二判讀醫師` : `尚未指派第二判讀醫師；等待${e.rptDr}判讀`;
+  const b = readOf(e, e.second).saved;
+  if(!a || !b) return `雙人判讀中：等待${[!a && e.rptDr, !b && e.second].filter(Boolean).join('、')}`;
+  if(agreed(e)) return `BI-RADS 一致，待${e.rptDr}認證`;
+  if(!arbitrated(e)) return 'BI-RADS 不一致，待裁決';
+  return `已裁決，待${e.arbiter}認證`;
+}
+function drCell(e){
+  if(!isDouble(e)) return e.rptDr === '未指派' ? '<span class="unassigned">未指派</span>' : esc(e.rptDr);
+  const n = d => hasDr(d) ? esc(d) : '<span class="unassigned">未指派</span>';
+  return `第一 ${n(e.rptDr)}・第二 ${n(e.second)}${arbitrated(e) ? `・裁決 ${esc(e.arbiter)}` : disagreed(e) ? '・待裁決' : ''}`;
+}
+const needsDblAssign = e => isDouble(e) && e.status === '未完成' && hasDr(e.rptDr) && !hasDr(e.second);
 
 /* 依放射師訪談：已DC 且未照 → 從清單移除；已DC 但已照 → 保留並標示 */
 const inList = e => !(e.order === '已DC' && e.img === '未照');
@@ -374,22 +512,27 @@ function initFilters(){
   fillSelect('#f-cat', ['全部',...CATS], '全部');
   fillSelect('#f-unit', ['全部',...uniq(EXAMS.map(e=>e.unit))], '全部');
   fillSelect('#f-orderDr', ['全部',...uniq(EXAMS.map(e=>e.orderDr))], '全部');
-  fillSelect('#f-rptDr', ['全部',...uniq(EXAMS.map(e=>e.rptDr))], LOGIN_DR);
+  fillSelect('#f-rptDr', ['全部',...DOCTORS,'未指派'], viewRole === 'rad' ? '全部' : loginDr);
+  fillSelect('#f-img', ['全部','已照','未照影像'], '全部');
+  $('#r-doc-list').innerHTML = DOCTORS.map(d => `<option value="${esc(d)}"></option>`).join('');
+  $('#r-assign').value = ''; setAssignError('');
   $('#f-from').value = ''; $('#f-to').value = ''; $('#f-kw').value = '';
 }
 function getFilters(){
   return {from:$('#f-from').value, to:$('#f-to').value, status:$('#f-status').value, cat:$('#f-cat').value,
-          unit:$('#f-unit').value, orderDr:$('#f-orderDr').value, rptDr:$('#f-rptDr').value, kw:$('#f-kw').value.trim().toUpperCase()};
+          unit:$('#f-unit').value, orderDr:$('#f-orderDr').value, rptDr:$('#f-rptDr').value, img:$('#f-img').value, kw:$('#f-kw').value.trim().toUpperCase()};
 }
-const matchDr = (e,dr) => dr === '全部' || e.rptDr === dr;
+const matchDr = (e,dr) => dr === '全部' || (dr === '未指派' ? e.rptDr === '未指派' : involved(e,dr));
 function filtered(){
   const f = getFilters();
   return EXAMS.filter(e => {
-    if(!inList(e) || !matchDr(e,f.rptDr)) return false;
-    if(f.status !== '全部' && e.status !== f.status) return false;
+    if(!inList(e)) return false;
+    if(!f.kw && !matchDr(e,f.rptDr)) return false;   // 搜尋單號／身分證號時不受報告醫師篩選限制
+    if(f.status !== '全部' && st(e) !== f.status) return false;
     if(f.cat !== '全部' && e.cat !== f.cat) return false;
     if(f.unit !== '全部' && e.unit !== f.unit) return false;
     if(f.orderDr !== '全部' && e.orderDr !== f.orderDr) return false;
+    if(f.img !== '全部' && imgText(e) !== f.img) return false;
     const d = e.dt.slice(0,10);
     if(f.from && d < f.from) return false;
     if(f.to && d > f.to) return false;
@@ -400,7 +543,10 @@ function filtered(){
 function sortVal(e,k){
   if(k === 'date') return e.dt;
   if(k === 'time') return e.dt.slice(11);
-  if(k === 'status') return STATUSES.indexOf(e.status);
+  if(k === 'status') return STATUSES.indexOf(st(e));
+  if(k === 'progress') return progress(e);
+  if(k === 'tpl') return TEMPLATES[e.cat].title;
+  if(k === 'img') return imgText(e);
   return e[k];
 }
 function sorted(list){
@@ -418,17 +564,17 @@ function renderLegend(){
 }
 function renderSummary(){
   const f = getFilters();
-  const pending = EXAMS.filter(e => inList(e) && canOpen(e) && e.status === '未完成' && matchDr(e,f.rptDr));
+  const pending = EXAMS.filter(e => inList(e) && canOpen(e) && st(e) === '未完成' && matchDr(e,f.rptDr));
   const who = f.rptDr === '全部' ? '全部醫師' : f.rptDr;
-  $('#summary-title').textContent = `${who}・未完成報告`;
-  $('#summary-num').textContent = pending.length;
-  const chip = (cat,label,n) => `<button type="button" class="cat-chip ${n?'has':'zero'}" data-cat="${esc(cat)}" aria-pressed="${f.cat===cat}">
-      <span class="n">${n}</span><span class="t">${esc(label)}</span></button>`;
-  $('#summary-cats').innerHTML = chip('全部','全部類別',pending.length) +
-    CATS.map(c => chip(c,c,pending.filter(e=>e.cat===c).length)).join('');
+  const all = EXAMS.filter(inList);
+  $('#summary').innerHTML = `${icon('pending')}<span>${esc(who)}未完成 <strong>${pending.length}</strong> 份・尚未指派報告醫師 ${all.filter(e => e.rptDr === '未指派').length} 筆・未照影像 ${all.filter(e => e.img !== '已照').length} 筆・乳攝待指派第二判讀 ${all.filter(needsDblAssign).length} 筆</span>`;
 }
 function renderHead(){
+  const pickable = sorted(filtered()).filter(canAssign);
+  const allOn = pickable.length && pickable.every(e => rad.picked.has(e.id));
   $('#thead').innerHTML = '<tr>' + COLS.map(c => {
+    if(c.k === 'pick') return `<th class="pick-cell"><span style="display:flex;justify-content:center;padding:0 var(--space-3)"><input type="checkbox" class="pick" id="r-all" aria-label="全選可指派的檢查" ${allOn?'checked':''} ${pickable.length?'':'disabled'}></span></th>`;
+    if(c.k === 'act') return `<th><span style="display:block;padding:0 var(--space-3);font-size:var(--font-size-sm);font-weight:var(--font-weight-medium)">${c.label}</span></th>`;
     const on = state.sort.k === c.k;
     const aria = on ? (state.sort.dir === 1 ? 'ascending' : 'descending') : 'none';
     return `<th aria-sort="${aria}"><button type="button" data-sort="${c.k}">${c.label}<span class="arrow" aria-hidden="true">${on?(state.sort.dir===1?'▲':'▼'):''}</span></button></th>`;
@@ -436,23 +582,31 @@ function renderHead(){
 }
 function renderBody(){
   const rows = sorted(filtered());
-  $('#list-count').textContent = `共 ${rows.length} 筆・點選列開啟報告`;
+  const f = getFilters();
+  $('#list-count').textContent = `共 ${rows.length} 筆・點選列開啟報告，勾選後可指派醫師` +
+    (f.kw && f.rptDr !== '全部' ? '・搜尋單號／身分證號時，顯示所有醫師的結果' : '');
   if(!rows.length){ $('#tbody').innerHTML = `<tr><td class="empty" colspan="${COLS.length}">沒有符合條件的檢查</td></tr>`; return; }
   $('#tbody').innerHTML = rows.map(e => {
     const open = canOpen(e), dc = e.order === '已DC';
-    const cls = [`st-${ST_CLASS[e.status]}`, dc?'is-dc':'', open?'is-open':'is-locked', e.id===state.selectedId?'is-selected':''].join(' ');
-    return `<tr class="${cls}" data-id="${e.id}" tabindex="${open?0:-1}" ${e.id===state.selectedId?'aria-selected="true"':''} aria-label="${e.id} ${e.pt} ${e.name} ${e.status}${dc?' '+DC_LABEL:''}${open?'':' 未照影像'}">
+    const ok = canAssign(e), on = rad.picked.has(e.id);
+    const cls = [`st-${ST_CLASS[st(e)]}`, dc?'is-dc':'', open?'is-open':'is-locked', (on || e.id===state.selectedId)?'is-selected':''].join(' ');
+    return `<tr class="${cls}" data-id="${e.id}" tabindex="${open?0:-1}" ${e.id===state.selectedId?'aria-selected="true"':''} aria-label="${e.id} ${e.pt} ${e.name} ${st(e)} ${esc(progress(e))}">
+      <td class="pick-cell"><input type="checkbox" class="pick" data-id="${e.id}" ${on?'checked':''} ${ok?'':'disabled'}
+        aria-label="${ok?`選取 ${e.id}`:`${e.id} 報告${e.status}，不能指派`}"></td>
       <td>${badge(e)}</td>
+      <td>${esc(progress(e))}</td>
       <td><span class="id-cell">${e.id}${dc?dcBadge():''}</span></td>
       <td>${e.dt.slice(0,10)}</td><td>${e.dt.slice(11)}</td>
       <td>${esc(e.cat)}</td><td>${esc(e.name)}</td>
+      <td>${esc(TEMPLATES[e.cat].title)}</td>
       <td>${esc(e.pt)}（${e.sex}／${e.age}）</td><td>${e.pid}</td>
       <td>${esc(e.unit)}</td><td>${esc(e.orderDr)}</td>
-      <td>${e.rptDr==='未指派'?'<span class="unassigned">未指派</span>':esc(e.rptDr)}</td>
-      <td>${open?'已照':noImgBadge()}</td></tr>`;
+      <td>${drCell(e)}</td>
+      <td>${open?'已照':noImgBadge()}</td>
+      <td>${e.status==='已認證'?`<button type="button" class="btn btn-danger" data-return="${e.id}">退回重打</button>`:''}</td></tr>`;
   }).join('');
 }
-function updateList(){ renderSummary(); renderHead(); renderBody(); }
+function updateList(){ renderSummary(); renderHead(); renderBody(); radBulk(); }
 
 /* ===== 打報告畫面 ===== */
 function openReport(id){
@@ -470,10 +624,15 @@ function nbInfo(e){
 function renderReport(){
   const e = get(state.currentId), tpl = TEMPLATES[e.cat], q = state.queue, i = q.indexOf(e.id);
   const prev = i > 0 ? get(q[i-1]) : null, next = i < q.length-1 ? get(q[i+1]) : null;
-  const remaining = q.filter(id => get(id).status === '未完成').length;
-  const locked = e.status === '已認證', dc = e.order === '已DC';
+  const remaining = q.filter(id => st(get(id)) === '未完成').length;
+  const dc = e.order === '已DC', dbl = isDouble(e), r = dbl ? roleOf(e, loginDr) : null;
+  const locked = e.status === '已認證';
+  const owner = certifier(e);
   const vals = e.draft || e.report || {};
   const phr = PHRASES[e.cat] || {};
+  const canSave = viewRole !== 'rad' && !locked && (!dbl || ((r === 'first' || r === 'second') && !bothSaved(e)) || r === 'arbiter');
+  const canCert = viewRole !== 'rad' && !locked && (!dbl || (owner === loginDr && e.status === '已完成'));
+  const hasDraft = dbl ? !!(e.drafts && e.drafts[loginDr]) : !!e.draft;
 
   $('#report-view').innerHTML = `
     <div class="rp-bar">
@@ -492,7 +651,7 @@ function renderReport(){
         <div><dt>開單日期</dt><dd title="模擬資料未提供">—</dd></div>
         <div><dt>開單單位</dt><dd>${esc(e.unit)}</dd></div>
         <div><dt>開單醫師</dt><dd>${esc(e.orderDr)}</dd></div>
-        <div><dt>報告醫師</dt><dd>${esc(e.rptDr)}</dd></div>
+        <div class="${dbl?'span2':''}"><dt>報告醫師</dt><dd>${drCell(e)}</dd></div>
       </dl>
     </section>
 
@@ -514,17 +673,11 @@ function renderReport(){
       <section class="card report" aria-labelledby="tpl-title">
         <div class="report-head"><h2 id="tpl-title">${esc(tpl.title)}</h2>${badge(e)}</div>
         <div class="report-body">
-          ${dc ? `<div class="notice dc" role="note">${icon('dc')}${DC_LABEL}（檢查已照影像），請確認是否仍需撰寫報告。</div>` : ''}
-          ${locked ? `<div class="notice lock" role="note">${icon('lock')}此報告已認證，內容不可修改。</div>` : ''}
+          ${dc ? `<div class="notice dc" role="note">${icon('dc')}${DC_LABEL}，但檢查已照影像，此報告仍列在待打清單。</div>` : ''}
+          ${locked ? `<div class="notice lock" role="note">${icon('lock')}此報告已認證，內容不可修改。${owner===loginDr?'如需修改，請先取消認證。':`只有認證醫師（${esc(owner)}）可以取消認證。`}</div>` : ''}
           ${e.cat === '門診放射' ? '<div class="his"><strong>HIS 診斷、S、O</strong><span class="muted">（示意位置，雛型未串接 HIS）</span></div>' : ''}
-          ${tpl.fields.map(f => `
-            <div class="field">
-              <label class="field-label" for="fld-${f}">${f}</label>
-              ${(phr[f]||[]).length
-                ? `<div class="phrases" role="group" aria-label="${f} 片語">${phr[f].map(p => `<button type="button" class="chip" data-field="${f}" data-phrase="${esc(p)}" ${locked?'disabled':''}>＋ ${esc(p)}</button>`).join('')}</div>`
-                : '<p class="no-phrase">此範本尚未設定片語</p>'}
-              <textarea class="input" id="fld-${f}" data-field="${f}" ${locked?'readonly':''}>${esc(vals[f]||'')}</textarea>
-            </div>`).join('')}
+          ${viewRole === 'rad' ? `<div class="notice info" role="note">${icon('lock')}放射師只能檢視報告，不能撰寫或認證。</div>` : ''}
+          ${dbl ? doubleBody(e, r) : tpl.fields.map(f => fieldHtml(f, phr[f], vals[f], locked || viewRole === 'rad')).join('')}
           <p class="field-error" id="fld-error" hidden>${icon('alert')}請至少填寫一個欄位再儲存</p>
         </div>
         <div class="actions">
@@ -533,9 +686,10 @@ function renderReport(){
             <button type="button" class="btn" data-go="${i+1}" ${next?'':'disabled'}>下一筆 →</button>
           </div>
           <div class="grp">
-            <span id="dirty" class="dirty" ${e.draft?'':'hidden'}>● 尚未儲存</span>
-            <button type="button" class="btn btn-primary" id="act-save" ${locked?'disabled':''}>儲存並跳下一筆 <kbd>Ctrl+S</kbd></button>
-            <button type="button" class="btn" id="act-cert" ${locked?'disabled':''}>認證並跳下一筆</button>
+            <span id="dirty" class="dirty" ${hasDraft?'':'hidden'}>● 尚未儲存</span>
+            ${locked && owner===loginDr ? '<button type="button" class="btn btn-danger" id="act-uncert">取消認證</button>' : ''}
+            <button type="button" class="btn btn-primary" id="act-save" ${canSave?'':'disabled'}>儲存並跳下一筆 <kbd>Ctrl+S</kbd></button>
+            <button type="button" class="btn" id="act-cert" ${canCert?'':'disabled'}>認證並跳下一筆</button>
           </div>
         </div>
       </section>
@@ -543,9 +697,60 @@ function renderReport(){
   window.scrollTo(0,0);
   $('#rp-title').focus({preventScroll:true});
 }
+function fieldHtml(f, phrases, value, lock){
+  const list = phrases || [];
+  return `
+    <div class="field">
+      <label class="field-label" for="fld-${f}">${f}</label>
+      ${list.length
+        ? `<div class="phrases" role="group" aria-label="${f} 片語">${list.map(p => `<button type="button" class="chip" data-field="${f}" data-phrase="${esc(p)}" ${lock?'disabled':''}>＋ ${esc(p)}</button>`).join('')}</div>`
+        : '<p class="no-phrase">此欄位尚未設定片語</p>'}
+      <textarea class="input" id="fld-${f}" data-field="${f}" ${lock?'readonly':''}>${esc(value||'')}</textarea>
+    </div>`;
+}
+function biradsField(value, lock, label, hint){
+  return `
+    <div class="field">
+      <label class="field-label" for="fld-birads">${label}（必填，${hint || '系統以此比對兩位醫師是否一致'}）</label>
+      <select class="input" id="fld-birads" ${lock?'disabled':''}>
+        <option value="">請選擇</option>${BIRADS.map(b => `<option value="${b}" ${b===value?'selected':''}>BI-RADS ${b}</option>`).join('')}
+      </select>
+      <p class="field-error" id="birads-error" hidden>${icon('alert')}請選擇 BI-RADS 分類</p>
+    </div>`;
+}
+function compareHtml(e){
+  const col = (dr, title) => {
+    const rd = readOf(e, dr);
+    return `<div class="card cmp-col"><div class="cmp-top"><strong>${title}：${esc(dr)}</strong><span class="badge neutral">BI-RADS ${rd.birads || '—'}</span></div>
+      ${TEMPLATES[e.cat].fields.map(f => `<div><span class="field-label">${f}</span><p>${esc(rd.fields[f] || '—')}</p></div>`).join('')}</div>`;
+  };
+  return `<section class="compare" aria-label="兩位醫師的判讀">${col(e.rptDr,'第一判讀')}${col(e.second,'第二判讀')}</section>`;
+}
+function doubleBody(e, r){
+  const phr = PHRASES[e.cat] || {}, d = (e.drafts && e.drafts[loginDr]) || null;
+  const info = `<div class="notice info" role="note">${icon('pair')}雙人判讀：${progressDouble(e)}</div>`;
+  if(r === 'first' || r === 'second'){
+    const rd = readOf(e, loginDr), lock = e.status === '已認證' || bothSaved(e);
+    const v = d || rd.fields;
+    const note = lock && e.status !== '已認證' ? '兩位醫師都已完成，判讀內容已鎖定。' : '兩位醫師都完成前，看不到對方的判讀。';
+    return info + `<p class="muted">你是${r === 'first' ? '第一' : '第二'}判讀醫師。${note}</p>` +
+      biradsField(d && d.__birads !== undefined ? d.__birads : rd.birads, lock, 'BI-RADS 分類') +
+      TEMPLATES[e.cat].fields.map(f => fieldHtml(f, phr[f], v[f], lock)).join('') +
+      (bothSaved(e) ? compareHtml(e) : '');
+  }
+  if(r === 'arbiter'){
+    const lock = e.status === '已認證', a = e.arb || {fields:{}};
+    const v = d || a.fields;
+    return info + compareHtml(e) + `<p class="muted">你不是這份報告的判讀醫師，可以進行裁決：選擇最終 BI-RADS 分類並撰寫最終報告。</p>` +
+      biradsField(d && d.__birads !== undefined ? d.__birads : (a.birads || ''), lock, '最終 BI-RADS 分類', '裁決結果') +
+      TEMPLATES[e.cat].fields.map(f => fieldHtml(f, phr[f], v[f], lock)).join('');
+  }
+  if(e.status === '未完成') return info + '<p class="muted">你不是這份報告的判讀醫師；判讀完成前內容不公開。</p>';
+  return info + compareHtml(e) + (e.arb ? `<div class="notice info" role="note">裁決（${esc(e.arbiter)}）：最終 BI-RADS ${e.arb.birads}</div>` : '');
+}
 function nextUnfinished(fromId){
   const q = state.queue, i = q.indexOf(fromId);
-  return [...q.slice(i+1), ...q.slice(0,i)].find(id => get(id).status === '未完成' && canOpen(get(id)));
+  return [...q.slice(i+1), ...q.slice(0,i)].find(id => st(get(id)) === '未完成' && canOpen(get(id)));
 }
 function setFieldError(on){
   document.querySelectorAll('#report-view textarea').forEach(t => {
@@ -554,8 +759,48 @@ function setFieldError(on){
   });
   const msg = $('#fld-error'); if(msg) msg.hidden = !on;
 }
+function goNext(e, verb, extra){
+  const msg = `${e.id} 已${verb}` + (extra ? `（${extra}）` : '');
+  const n = nextUnfinished(e.id);
+  if(n){
+    state.currentId = n;
+    renderReport();
+    toast(`${msg}，已跳到下一筆未完成：${n}`);
+  }else{
+    renderReport();
+    toast(msg);
+    $('#done').hidden = false;
+    $('#done-back').focus();
+  }
+}
+function setBiradsError(on){
+  const sel = $('#fld-birads'), msg = $('#birads-error'); if(!sel) return;
+  if(on){ sel.setAttribute('aria-invalid','true'); sel.setAttribute('aria-describedby','birads-error'); }
+  else { sel.removeAttribute('aria-invalid'); sel.removeAttribute('aria-describedby'); }
+  msg.hidden = !on;
+}
+function commitDouble(kind){
+  const e = get(state.currentId), r = roleOf(e, loginDr);
+  if(e.status === '已認證') return;
+  if(kind === 'cert'){
+    if(certifier(e) !== loginDr || e.status !== '已完成'){ toast('雙人判讀尚未完成，或你不是這份報告的認證醫師', true); return; }
+    e.status = '已認證';
+    return goNext(e, '認證');
+  }
+  const b = $('#fld-birads') ? $('#fld-birads').value : '';
+  if(!b){ setBiradsError(true); toast('請選擇 BI-RADS 分類', true); $('#fld-birads')?.focus(); return; }
+  const fields = {};
+  document.querySelectorAll('#report-view textarea').forEach(t => fields[t.dataset.field] = t.value.trim());
+  if(r === 'first' || r === 'second') Object.assign(readOf(e, loginDr), {fields, birads:b, saved:true});
+  else if(r === 'arbiter'){ e.arbiter = loginDr; e.arb = {birads:b, fields, saved:true}; }
+  else return;
+  if(e.drafts) delete e.drafts[loginDr];
+  syncDouble(e);
+  goNext(e, '儲存', progressDouble(e));
+}
 function commit(kind){
   const e = get(state.currentId);
+  if(isDouble(e)) return commitDouble(kind);
   if(e.status === '已認證') return;
   const vals = {};
   document.querySelectorAll('#report-view textarea').forEach(t => vals[t.dataset.field] = t.value.trim());
@@ -567,19 +812,104 @@ function commit(kind){
   }
   e.report = vals; e.draft = null;
   e.status = kind === 'cert' ? '已認證' : '已完成';
-  const verb = kind === 'cert' ? '認證' : '儲存';
-  const n = nextUnfinished(e.id);
-  if(n){
-    state.currentId = n;
-    renderReport();
-    toast(`${e.id} 已${verb}，已跳到下一筆未完成：${n}`);
-  }else{
-    renderReport();
-    toast(`${e.id} 已${verb}`);
-    $('#done').hidden = false;
-    $('#done-back').focus();
-  }
+  goNext(e, kind === 'cert' ? '認證' : '儲存');
 }
+/* ===== 取消認證（訪談三：已認證的報告需修改時，取消認證回到未完成） ===== */
+let confirmReturn = null;
+let confirmAction = null;
+function openConfirm(title, desc, yesLabel, action){
+  $('#confirm-title').textContent = title;
+  $('#confirm-desc').textContent = desc;
+  $('#confirm-yes').textContent = yesLabel;
+  confirmAction = action;
+  confirmReturn = document.activeElement;
+  $('#confirm').hidden = false;
+  $('#confirm-no').focus();
+}
+function askUncert(){
+  const e = get(state.currentId);
+  openConfirm('取消認證', `取消 ${e.id}（${e.pt}）的認證後，報告會回到「未完成」，可以修改內容並重新儲存、認證。`, '取消認證', doUncert);
+}
+function closeConfirm(){
+  $('#confirm').hidden = true;
+  confirmReturn?.focus?.();
+}
+function doUncert(){
+  const e = get(state.currentId);
+  if(e.status !== '已認證' || certifier(e) !== loginDr) return closeConfirm();
+  if(isDouble(e)) reopenDouble(e); else e.status = '未完成';
+  $('#confirm').hidden = true;
+  renderReport();
+  toast(`${e.id} 已取消認證，報告回到未完成`);
+  $('#report-view textarea')?.focus();
+}
+
+/* ===== 切換登入身分（雛型測試用） ===== */
+function switchLogin(who){
+  state.selectedId = null; state.currentId = null; state.queue = [];
+  $('#done').hidden = true; $('#confirm').hidden = true;
+  $('#report-view').hidden = true;
+  const isRad = who === RAD;
+  viewRole = isRad ? 'rad' : 'doctor';
+  loginDr = who;
+  $('#role-tag').textContent = isRad ? '放射師' : '醫師';
+  $('#list-view').hidden = false;
+  rad.picked.clear(); initFilters(); updateList();
+  toast(`已切換為${who}`);
+}
+
+/* ===== 放射師端 ===== */
+const RAD = '放射師';
+const ROSTER = DOCTORS;   // 可指派的報告醫師名單（模擬資料只有兩位）
+const rad = { picked:new Set() };   // 勾選要指派的檢查
+const imgText = e => e.img === '已照' ? '已照' : '未照影像';
+const canAssign = e => e.status === '未完成';   // 暫定：只有未完成的報告可以指派或改派
+function radBulk(){
+  const n = rad.picked.size;
+  $('#r-picked').textContent = `已選取 ${n} 筆`;
+  $('#r-assign-go').disabled = !n;
+  $('#r-clear').disabled = !n;
+}
+function setAssignError(msg){
+  const inp = $('#r-assign'), err = $('#r-assign-err');
+  if(msg){ inp.setAttribute('aria-invalid','true'); inp.setAttribute('aria-describedby','r-assign-err'); err.innerHTML = icon('alert') + esc(msg); err.hidden = false; }
+  else { inp.removeAttribute('aria-invalid'); inp.removeAttribute('aria-describedby'); err.hidden = true; }
+}
+const ROLE_LABEL = {first:'報告醫師', second:'第二判讀醫師'};
+function radAssign(){
+  const dr = $('#r-assign').value.trim(), role = $('#r-role').value;
+  if(!ROSTER.includes(dr)){ setAssignError('請從名單中選擇醫師'); $('#r-assign').focus(); return; }
+  const ids = [...rad.picked].filter(id => canAssign(get(id)));
+  const bad = [];
+  ids.forEach(id => {
+    const e = get(id);
+    if(role !== 'first' && !isDouble(e)) return bad.push(`${id} 不是健檢乳攝`);
+    if(!isDouble(e)) return;
+    if(role === 'first' && hasDr(e.rptDr) && readOf(e,e.rptDr).saved) bad.push(`${id} 的第一判讀已完成，不能改派`);
+    if(role === 'second' && hasDr(e.second) && readOf(e,e.second).saved) bad.push(`${id} 的第二判讀已完成，不能改派`);
+    const others = role === 'first' ? [e.second] : [e.rptDr];
+    if(others.includes(dr)) bad.push(`${id} 的${dr}已是另一位判讀醫師`);
+  });
+  if(bad.length){ setAssignError(bad.join('；')); $('#r-assign').focus(); return; }
+  ids.forEach(id => { const e = get(id); if(role === 'first') e.rptDr = dr; else e.second = dr; });
+  const noImg = ids.filter(id => get(id).img !== '已照');
+  rad.picked.clear(); $('#r-assign').value = ''; setAssignError('');
+  updateList();
+  ids.forEach(id => document.querySelector(`#tbody tr[data-id="${id}"]`)?.classList.add('is-selected'));
+  toast(`已將 ${ids.join('、')} 的${ROLE_LABEL[role]}指派為${dr}` + (noImg.length ? `；${noImg.join('、')} 尚未照影像，影像取回後醫師才能撰寫` : ''));
+}
+function radReturn(id){
+  const e = get(id);
+  const owner = certifier(e);
+  openConfirm('退回重打', `退回 ${e.id}（${e.pt}）後，認證會取消，報告回到${owner}的未完成清單，原內容保留。`, '退回重打', () => {
+    if(e.status === '已認證'){ if(isDouble(e)) reopenDouble(e); else e.status = '未完成'; }
+    $('#confirm').hidden = true;
+    updateList();
+    toast(`${e.id} 已退回，回到${owner}的未完成清單`);
+    document.querySelector(`#tbody tr[data-id="${e.id}"] .pick`)?.focus();
+  });
+}
+
 function backToList(){
   $('#done').hidden = true;
   $('#report-view').hidden = true;
@@ -599,12 +929,8 @@ function toast(msg, warn){
 
 /* ===== 事件 ===== */
 $('#filters').addEventListener('input', updateList);
-$('#filters').addEventListener('change', updateList);
+$('#filters').addEventListener('change', ev => { if(ev.target.type !== 'search') updateList(); });   // 文字輸入已由 input 處理，避免失焦時重繪吃掉點擊
 $('#f-reset').addEventListener('click', () => { initFilters(); updateList(); });
-$('#summary-cats').addEventListener('click', ev => {
-  const b = ev.target.closest('[data-cat]'); if(!b) return;
-  $('#f-cat').value = b.dataset.cat; updateList();
-});
 $('#thead').addEventListener('click', ev => {
   const b = ev.target.closest('[data-sort]'); if(!b) return;
   const k = b.dataset.sort;
@@ -617,8 +943,25 @@ function rowActivate(tr){
   if(!canOpen(e)){ toast(`${e.id} 尚未照影像，無法撰寫報告`, true); return; }
   openReport(e.id);
 }
-$('#tbody').addEventListener('click', ev => rowActivate(ev.target.closest('tr[data-id]')));
+$('#tbody').addEventListener('click', ev => {
+  const ret = ev.target.closest('[data-return]');
+  if(ret) return radReturn(ret.dataset.return);
+  if(ev.target.matches('.pick')){
+    const id = ev.target.dataset.id;
+    ev.target.checked ? rad.picked.add(id) : rad.picked.delete(id);
+    renderHead(); renderBody(); radBulk();
+    document.querySelector(`#tbody .pick[data-id="${id}"]`)?.focus();
+    return;
+  }
+  rowActivate(ev.target.closest('tr[data-id]'));
+});
+$('#thead').addEventListener('change', ev => {
+  if(ev.target.id !== 'r-all') return;
+  sorted(filtered()).filter(canAssign).forEach(e => ev.target.checked ? rad.picked.add(e.id) : rad.picked.delete(e.id));
+  renderHead(); renderBody(); radBulk();
+});
 $('#tbody').addEventListener('keydown', ev => {
+  if(ev.target.matches('.pick, button')) return;
   if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); rowActivate(ev.target.closest('tr[data-id]')); }
 });
 
@@ -627,6 +970,7 @@ $('#report-view').addEventListener('click', ev => {
   if(t.closest('#rp-back')) return backToList();
   if(t.closest('#act-save')) return commit('save');
   if(t.closest('#act-cert')) return commit('cert');
+  if(t.closest('#act-uncert')) return askUncert();
   const go = t.closest('[data-go]');
   if(go && !go.disabled){ const id = state.queue[+go.dataset.go]; if(id){ state.currentId = id; renderReport(); } return; }
   const chip = t.closest('.chip');
@@ -639,20 +983,43 @@ $('#report-view').addEventListener('click', ev => {
   }
 });
 $('#report-view').addEventListener('input', ev => {
-  if(ev.target.tagName !== 'TEXTAREA') return;
-  const e = get(state.currentId);
-  e.draft = e.draft || {...(e.report || {})};
-  e.draft[ev.target.dataset.field] = ev.target.value;
+  const t = ev.target, e = get(state.currentId);
+  if(t.id === 'fld-birads'){
+    e.drafts = e.drafts || {}; e.drafts[loginDr] = e.drafts[loginDr] || {};
+    e.drafts[loginDr].__birads = t.value;
+    $('#dirty').hidden = false; setBiradsError(false);
+    return;
+  }
+  if(t.tagName !== 'TEXTAREA') return;
+  if(isDouble(e)){
+    e.drafts = e.drafts || {}; e.drafts[loginDr] = e.drafts[loginDr] || {};
+    e.drafts[loginDr][t.dataset.field] = t.value;
+  }else{
+    e.draft = e.draft || {...(e.report || {})};
+    e.draft[t.dataset.field] = t.value;
+  }
   $('#dirty').hidden = false;
   setFieldError(false);
 });
 document.addEventListener('keydown', ev => {
+  if(!$('#confirm').hidden && ev.key === 'Escape'){ closeConfirm(); return; }
   if(!$('#done').hidden && ev.key === 'Escape'){ backToList(); return; }
+  if(!$('#confirm').hidden) return;
   if(!$('#report-view').hidden && (ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's'){
     ev.preventDefault(); commit('save');
   }
 });
 $('#done-back').addEventListener('click', backToList);
+$('#confirm-no').addEventListener('click', closeConfirm);
+$('#confirm-yes').addEventListener('click', () => confirmAction && confirmAction());
+fillSelect('#login-dr', [...DOCTORS, RAD], loginDr);
+
+$('#r-assign-go').addEventListener('click', radAssign);
+$('#r-assign').addEventListener('input', () => setAssignError(''));
+$('#r-role').addEventListener('change', () => setAssignError(''));
+$('#r-assign').addEventListener('keydown', ev => { if(ev.key === 'Enter' && rad.picked.size){ ev.preventDefault(); radAssign(); } });
+$('#r-clear').addEventListener('click', () => { rad.picked.clear(); renderHead(); renderBody(); radBulk(); });
+$('#login-dr').addEventListener('change', ev => switchLogin(ev.target.value));
 
 initFilters();
 renderLegend();
