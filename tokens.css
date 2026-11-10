@@ -1,22 +1,24 @@
 /* 影像報告撰寫系統｜設計 tokens
    以起始範本為基礎整理，規則說明見 design-system.md。
    標示「新增」的變數是範本沒有、由雛型盤點整理出來的。
-   報告狀態色採用 B 組「色覺友善色相」（2026-11-03 決定）。 */
+   報告狀態色採用 B 組「色覺友善色相」（2026-11-03 決定）。
+   介面風格：粉色主色＋深色粗框＋錯位實心陰影（2026-11-04 改版）。 */
 
 :root {
   /* ── 色彩：基本 ── */
-  --color-primary: #1f5fa8;          /* 主要按鈕、連結、焦點框 */
-  --color-primary-hover: #194d88;    /* 新增：主要按鈕滑過 */
-  --color-primary-soft: #e8eff8;     /* 新增：選取狀態底色（分項晶片、目前這筆） */
+  --color-primary: #e1bfce;          /* 主要按鈕底色、身分標籤；只能搭配深色文字（--color-text 8.8:1），不可用白字 */
+  --color-primary-hover: #d4aabf;    /* 新增：主要按鈕滑過 */
+  --color-primary-soft: #f6ebf0;     /* 新增：選取狀態底色（目前這筆、片語滑過） */
+  --color-primary-ink: #7a3d5c;      /* 新增：主色系文字、表格列選取框線（對白底 7.9:1） */
   --color-bg: #ffffff;               /* 卡片、表格、輸入框底色 */
-  --color-surface: #f5f7fa;          /* 頁面底色、表頭、次要區塊 */
+  --color-surface: #f3f3f3;          /* 頁面底色、表頭、次要區塊 */
   --color-text: #1f2933;             /* 主要文字 */
   --color-text-muted: #5f6b7a;       /* 次要文字、欄位標籤 */
   --color-border: #d5dbe3;           /* 卡片與表格分隔線（裝飾用） */
-  --color-border-input: #7b8594;     /* 新增：輸入框、次要按鈕框線（對白底 3.7:1） */
+  --color-border-input: #7b8594;     /* 新增：輸入框、勾選框、提示框框線（對白底 3.7:1） */
   --color-danger: #b42318;           /* 新增：錯誤訊息、危險操作（不與醫令已 DC 共用） */
   --color-danger-bg: #fdeceb;        /* 新增：錯誤訊息底色 */
-  --color-focus: #1f5fa8;            /* 新增：鍵盤焦點框 */
+  --color-focus: #7a3d5c;            /* 新增：鍵盤焦點框 */
   --color-image-bg: #2f343c;         /* 新增：影像顯示區底色 */
   --color-image-text: #c8cdd5;       /* 新增：影像顯示區文字 */
   --color-overlay: rgba(20, 25, 35, .45); /* 新增：對話框遮罩 */
@@ -40,8 +42,8 @@
   --font-size-sm: 13px;        /* 欄位標籤、狀態標籤、片語、輔助說明 */
   --font-size-md: 15px;        /* 內文、表格、輸入框、按鈕 */
   --font-size-lg: 18px;        /* 區塊標題、頁面標題 */
-  --font-size-xl: 22px;        /* 分項數量 */
-  --font-size-display: 40px;   /* 新增：未完成總數（全畫面只用一處） */
+  --font-size-xl: 22px;        /* 影像顯示區標題 */
+  --font-size-display: 40px;   /* 新增：目前未使用（保留） */
   --font-weight-regular: 400;  /* 新增 */
   --font-weight-medium: 600;   /* 新增：標籤、表頭、按鈕 */
   --font-weight-bold: 700;     /* 新增：標題、數字 */
@@ -61,9 +63,15 @@
   --status-marker-width: 4px;  /* 醫令已 DC 左側標記寬度 */
 
   /* ── 圓角 ── */
-  --radius: 6px;          /* 按鈕、輸入框 */
+  --radius: 6px;          /* 輸入框、提示框（按鈕改用 --radius-pill） */
   --radius-lg: 8px;       /* 新增：卡片、影像區、對話框 */
-  --radius-pill: 999px;   /* 新增：狀態標籤、片語 */
+  --radius-pill: 999px;   /* 新增：按鈕、狀態標籤、片語 */
+
+  /* ── 框線與按鈕風格（新增，2026-11-04） ── */
+  --border-width-strong: 2px;                       /* 按鈕、選取列、目前這筆的粗框 */
+  --shadow-offset: 3px 3px 0 var(--color-text);     /* 主要按鈕：錯位實心陰影 */
+  --shadow-offset-hover: 1px 1px 0 var(--color-text); /* 滑過時陰影縮短，按鈕往右下移 */
+  --letter-spacing-button: .06em;                   /* 按鈕文字字距 */
 
   /* ── 陰影（新增） ── */
   --shadow-overlay: 0 12px 40px rgba(0, 0, 0, .25); /* 對話框、提示訊息 */
